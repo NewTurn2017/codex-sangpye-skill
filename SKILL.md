@@ -1,6 +1,6 @@
 ---
 name: codex-sangpye
-description: Generate a 13-section Korean e-commerce 상세페이지(상폐) image set (1080x7500 combined image + 13 individual section PNGs) from 1-14 product photos plus a Korean brief, using the Codex CLI's `codex responses` entrypoint under the active Codex OAuth session (no separate OpenAI API key required).
+description: Generate a 13-section Korean e-commerce 상세페이지(상폐) image set (1080x12720 combined image + 13 individual section PNGs) from 1-14 product photos plus a Korean brief, using the Codex CLI's `codex responses` entrypoint under the active Codex OAuth session (no separate OpenAI API key required).
 version: 0.1.0
 author: genie
 license: MIT
@@ -12,7 +12,7 @@ metadata:
 
 ## When to use
 
-When the user wants a Korean e-commerce product detail page ("상세페이지" / "상폐") asset set — 13 emotional-journey sections (Hero → Pain → Problem → Story → Solution → How → Proof → Authority → Benefits → Risk → Compare → Filter → CTA) plus a single 1080×7500 combined PNG — generated from 1–14 product photos and a Korean brief.
+When the user wants a Korean e-commerce product detail page ("상세페이지" / "상폐") asset set — 13 emotional-journey sections (Hero → Pain → Problem → Story → Solution → How → Proof → Authority → Benefits → Risk → Compare → Filter → CTA) plus a single 1080×12720 combined PNG — generated from 1–14 product photos and a Korean brief.
 
 Prefer this skill over invoking image generation by hand, because:
 - It runs the full analysis (gpt-5.4) + 5-bundle parallel image generation (orchestrator + image_generation tool) + slicing + vertical composition pipeline.

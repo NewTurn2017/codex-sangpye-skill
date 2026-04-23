@@ -1,13 +1,13 @@
 # codex-sangpye-skill
 
-한국 이커머스 **상세페이지(상폐)** 생성 스킬. 상품 사진 1~14장 + 한국어 프롬프트 → 13장 섹션 이미지 + 1080×7500 합성 이미지. 당신의 Codex OAuth 세션(ChatGPT Plus/Pro)을 그대로 씁니다. OpenAI API 키 불필요.
+한국 이커머스 **상세페이지(상폐)** 생성 스킬. 상품 사진 1~14장 + 한국어 프롬프트 → 13장 섹션 이미지 + 1080×12720 합성 이미지. 당신의 Codex OAuth 세션(ChatGPT Plus/Pro)을 그대로 씁니다. OpenAI API 키 불필요.
 
 > 왜 "상폐"? 상세페이지의 한국 이커머스 업계 속어. 패션/뷰티/가전 셀러들이 다 이렇게 부릅니다.
 
 ## What it produces
 
 - **13 section PNGs** at 1080×H (variable height per section): Hero → Pain → Problem → Story → Solution → How → Proof → Authority → Benefits → Risk → Compare → Filter → CTA
-- **1 combined PNG** at 1080×7500 (vertical composition)
+- **1 combined PNG** at 1080×12720 (vertical composition)
 - **1 analysis.json** with Product DNA, bundle prompts, Korean copy
 
 ## Install

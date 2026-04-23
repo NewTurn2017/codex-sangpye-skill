@@ -143,15 +143,11 @@ def test_generate_image_with_reference_jpeg(tmp_path, monkeypatch):
 
 def test_call_responses_raises_on_subprocess_error(monkeypatch, fake_login_ok):
     """Non-zero codex exit surfaces as CodexCallError with the stderr snippet."""
-    def fake_run(cmd, **kw):
-        if cmd[:3] == ["codex", "login", "status"]:
-            return _completed(returncode=0)
-        if cmd == ["codex", "responses"]:
-            return _completed(returncode=1, stderr="some api error")
-        raise RuntimeError(f"unexpected: {cmd}")
+    def fake_responses(cmd, **kw):
+        return _completed(returncode=1, stderr="some api error")
 
-    monkeypatch.setattr(subprocess, "run", fake_run)
     client = CodexClient()
+    monkeypatch.setattr(subprocess, "run", fake_responses)
     with pytest.raises(CodexCallError, match="some api error"):
         client.call_responses(
             model="gpt-5.4",
@@ -162,16 +158,12 @@ def test_call_responses_raises_on_subprocess_error(monkeypatch, fake_login_ok):
 
 def test_call_responses_raises_on_missing_completed(monkeypatch, fake_login_ok):
     """Stream ending without response.completed → CodexCallError."""
-    def fake_run(cmd, **kw):
-        if cmd[:3] == ["codex", "login", "status"]:
-            return _completed(returncode=0)
-        if cmd == ["codex", "responses"]:
-            stdout = json.dumps({"type": "response.output_text.delta", "delta": "x"}) + "\n"
-            return _completed(stdout=stdout)
-        raise RuntimeError(f"unexpected: {cmd}")
+    def fake_responses(cmd, **kw):
+        stdout = json.dumps({"type": "response.output_text.delta", "delta": "x"}) + "\n"
+        return _completed(stdout=stdout)
 
-    monkeypatch.setattr(subprocess, "run", fake_run)
     client = CodexClient()
+    monkeypatch.setattr(subprocess, "run", fake_responses)
     with pytest.raises(CodexCallError, match="response.completed"):
         client.call_responses(
             model="gpt-5.4",
@@ -185,15 +177,11 @@ def test_generate_image_raises_on_subprocess_error(tmp_path, monkeypatch, fake_l
     ref = tmp_path / "ref.png"
     ref.write_bytes(b"fake")
 
-    def fake_run(cmd, **kw):
-        if cmd[:3] == ["codex", "login", "status"]:
-            return _completed(returncode=0)
-        if cmd == ["codex", "responses"]:
-            return _completed(returncode=1, stderr="rate limit")
-        raise RuntimeError(f"unexpected: {cmd}")
+    def fake_responses(cmd, **kw):
+        return _completed(returncode=1, stderr="rate limit")
 
-    monkeypatch.setattr(subprocess, "run", fake_run)
     client = CodexClient()
+    monkeypatch.setattr(subprocess, "run", fake_responses)
     with pytest.raises(CodexCallError, match="rate limit"):
         client.generate_image_with_reference(
             orchestrator_model="gpt-5.4",
@@ -208,19 +196,15 @@ def test_generate_image_raises_on_no_image_result(tmp_path, monkeypatch, fake_lo
     ref = tmp_path / "ref.png"
     ref.write_bytes(b"fake")
 
-    def fake_run(cmd, **kw):
-        if cmd[:3] == ["codex", "login", "status"]:
-            return _completed(returncode=0)
-        if cmd == ["codex", "responses"]:
-            stdout = "\n".join([
-                json.dumps({"type": "response.created"}),
-                json.dumps({"type": "response.completed"}),
-            ]) + "\n"
-            return _completed(stdout=stdout)
-        raise RuntimeError(f"unexpected: {cmd}")
+    def fake_responses(cmd, **kw):
+        stdout = "\n".join([
+            json.dumps({"type": "response.created"}),
+            json.dumps({"type": "response.completed"}),
+        ]) + "\n"
+        return _completed(stdout=stdout)
 
-    monkeypatch.setattr(subprocess, "run", fake_run)
     client = CodexClient()
+    monkeypatch.setattr(subprocess, "run", fake_responses)
     with pytest.raises(CodexCallError, match="image_generation_call"):
         client.generate_image_with_reference(
             orchestrator_model="gpt-5.4",
@@ -228,3 +212,26 @@ def test_generate_image_raises_on_no_image_result(tmp_path, monkeypatch, fake_lo
             prompt="x",
             size=(1088, 1600),
         )
+
+
+def test_generate_image_no_extension_defaults_to_png(tmp_path, monkeypatch, fake_login_ok):
+    """File without extension falls back to image/png MIME."""
+    ref = tmp_path / "imagefile"  # no extension
+    ref.write_bytes(b"fake")
+    fake_b64 = base64.b64encode(b"fakepng").decode()
+    captured = {}
+
+    def fake_responses(cmd, **kw):
+        captured["payload"] = json.loads(kw["input"])
+        return _completed(stdout=jsonl_image_stream(fake_b64))
+
+    client = CodexClient()
+    monkeypatch.setattr(subprocess, "run", fake_responses)
+    client.generate_image_with_reference(
+        orchestrator_model="gpt-5.4",
+        reference_image=ref,
+        prompt="x",
+        size=(1088, 1600),
+    )
+    content = captured["payload"]["input"][0]["content"]
+    assert content[0]["image_url"].startswith("data:image/png;base64,")

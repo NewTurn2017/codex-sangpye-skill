@@ -2,6 +2,7 @@
 from __future__ import annotations
 import base64
 import json
+import mimetypes
 import subprocess
 from pathlib import Path
 
@@ -21,10 +22,16 @@ class CodexClient:
         self._verify_login()
 
     def _verify_login(self) -> None:
-        result = subprocess.run(
-            [self.codex_bin, "login", "status"],
-            capture_output=True, text=True, timeout=10,
-        )
+        try:
+            result = subprocess.run(
+                [self.codex_bin, "login", "status"],
+                capture_output=True, text=True, timeout=10,
+            )
+        except FileNotFoundError as e:
+            raise CodexAuthError(
+                f"`{self.codex_bin}` not found on PATH. Install the Codex CLI from "
+                f"https://github.com/openai/codex"
+            ) from e
         if result.returncode != 0:
             raise CodexAuthError(
                 f"`codex login status` failed (exit={result.returncode}). "
@@ -36,7 +43,7 @@ class CodexClient:
         *,
         model: str,
         instructions: str,
-        input: list[dict],
+        messages: list[dict],
         response_format: dict | None = None,
     ) -> str:
         """Text/structured response. Returns aggregated output_text.
@@ -46,13 +53,13 @@ class CodexClient:
         - `store: false` is REQUIRED (server defaults true and rejects).
         - `stream: true` is REQUIRED.
         - When `response_format = {"type":"json_object"}`, the caller is responsible
-          for ensuring the user-role input contains the literal word "json"
+          for ensuring the user-role messages contains the literal word "json"
           (OpenAI's own Responses API constraint, surfaced as 400).
         """
         payload: dict = {
             "model": model,
             "instructions": instructions,
-            "input": input,
+            "input": messages,
             "stream": True,
             "store": False,
         }
@@ -66,11 +73,16 @@ class CodexClient:
         The codex CLI (verified against openai/codex @ rust-v0.123.0 source) does
         NOT emit response.output_text.done. Terminator is response.completed.
         """
-        proc = subprocess.run(
-            [self.codex_bin, "responses"],
-            input=json.dumps(payload),
-            capture_output=True, text=True, timeout=self.timeout_sec,
-        )
+        try:
+            proc = subprocess.run(
+                [self.codex_bin, "responses"],
+                input=json.dumps(payload),
+                capture_output=True, text=True, timeout=self.timeout_sec,
+            )
+        except FileNotFoundError as e:
+            raise CodexCallError(
+                f"`{self.codex_bin}` not found on PATH (install from https://github.com/openai/codex)"
+            ) from e
         if proc.returncode != 0:
             raise CodexCallError(
                 f"codex responses exit={proc.returncode}: {proc.stderr.strip()[:500]}"
@@ -123,16 +135,17 @@ class CodexClient:
         the chat model passes the reference image and prompt through to the
         tool, and the tool emits the PNG in a `response.output_item.done` event.
 
-        Returns decoded PNG bytes.
+        Returns decoded image bytes.
         """
         b64 = base64.b64encode(reference_image.read_bytes()).decode()
+        mime = mimetypes.guess_type(reference_image.name)[0] or "image/png"
         payload = {
             "model": orchestrator_model,
             "instructions": self._IMAGE_INSTRUCTIONS,
             "input": [{
                 "role": "user",
                 "content": [
-                    {"type": "input_image", "image_url": f"data:image/png;base64,{b64}"},
+                    {"type": "input_image", "image_url": f"data:{mime};base64,{b64}"},
                     {"type": "input_text", "text": prompt},
                 ],
             }],
@@ -144,11 +157,16 @@ class CodexClient:
         return self._run_and_extract_image(payload)
 
     def _run_and_extract_image(self, payload: dict) -> bytes:
-        proc = subprocess.run(
-            [self.codex_bin, "responses"],
-            input=json.dumps(payload),
-            capture_output=True, text=True, timeout=self.timeout_sec,
-        )
+        try:
+            proc = subprocess.run(
+                [self.codex_bin, "responses"],
+                input=json.dumps(payload),
+                capture_output=True, text=True, timeout=self.timeout_sec,
+            )
+        except FileNotFoundError as e:
+            raise CodexCallError(
+                f"`{self.codex_bin}` not found on PATH (install from https://github.com/openai/codex)"
+            ) from e
         if proc.returncode != 0:
             raise CodexCallError(
                 f"codex responses exit={proc.returncode}: {proc.stderr.strip()[:500]}"

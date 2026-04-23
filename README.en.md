@@ -1,5 +1,15 @@
 # codex-sangpye-skill
 
+<p align="center">
+  <a href="examples/demo/skill_hero.png">
+    <img src="examples/demo/skill_hero_preview.jpg" alt="codex-sangpye-skill intro — drop product photos, run sangpye once, get a full 상세페이지" width="540">
+  </a>
+</p>
+
+<p align="center"><sub>↑ Skill overview poster (1080×12720). Click for full-resolution original.</sub></p>
+
+---
+
 > **Korean e-commerce product detail pages, generated from your ChatGPT subscription alone — no OpenAI API key required.**
 
 **한국어 버전:** [README.md](README.md)
@@ -10,11 +20,11 @@ Give it 1–14 product photos plus a Korean brief → get **13 section images + 
 
 <p align="center">
   <a href="examples/demo/combined_preview.jpg">
-    <img src="examples/demo/combined_preview.jpg" alt="Combined product detail page preview (1080×12720 scaled to 540×6360)" width="360">
+    <img src="examples/demo/combined_preview.jpg" alt="Live-E2E-generated sample combined detail page (1080×12720 scaled to 540×6360)" width="360">
   </a>
 </p>
 
-<p align="center"><sub>↑ Actual generated sample (1080×12720, scaled to 50% for preview). Click for full.</sub></p>
+<p align="center"><sub>↑ Sample produced by the actual live integration test (1080×12720, shown at 50%).</sub></p>
 
 ---
 

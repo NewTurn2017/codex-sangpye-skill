@@ -1,5 +1,15 @@
 # codex-sangpye-skill
 
+<p align="center">
+  <a href="examples/demo/skill_hero.png">
+    <img src="examples/demo/skill_hero_preview.jpg" alt="codex-sangpye-skill 소개 — 상품 사진 넣고, sangpye 한 번이면 상세페이지가 완성됩니다" width="540">
+  </a>
+</p>
+
+<p align="center"><sub>↑ 스킬 공식 홍보 이미지 (1080×12720). 클릭 시 원본.</sub></p>
+
+---
+
 > **한국 이커머스 상세페이지(상폐)를 ChatGPT 구독만으로 자동 생성하는 Codex 스킬.**
 > Korean e-commerce product detail pages generated from your ChatGPT Plus/Pro subscription — no OpenAI API key required.
 
@@ -9,11 +19,11 @@
 
 <p align="center">
   <a href="examples/demo/combined_preview.jpg">
-    <img src="examples/demo/combined_preview.jpg" alt="Combined 상세페이지 preview (1080×12720 → 540×6360)" width="360">
+    <img src="examples/demo/combined_preview.jpg" alt="라이브 E2E 테스트로 실제 생성된 상세페이지 (1080×12720 → 540×6360)" width="360">
   </a>
 </p>
 
-<p align="center"><sub>↑ 실제 생성 샘플 (1080×12720을 절반 크기로 프리뷰). 클릭 시 풀 프리뷰.</sub></p>
+<p align="center"><sub>↑ 라이브 통합 테스트에서 실제 생성된 샘플 (1080×12720을 절반 크기로 프리뷰).</sub></p>
 
 ---
 

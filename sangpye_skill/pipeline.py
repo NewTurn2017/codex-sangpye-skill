@@ -66,7 +66,7 @@ class PipelineService:
                 status_callback(status, step)
 
         # 1) Analyze
-        emit_status("analyzing", "OpenAI 분석 중: 제품 DNA + 5 묶음 스펙 생성")
+        emit_status("analyzing", "Codex(gpt-5.4) 분석 중: 제품 DNA + 5 묶음 스펙 생성")
         logger.info("[%s] analyze", job_id)
         plan = self.analysis.build_plan(images=user_images, prompt=prompt, category=category)
 
@@ -102,12 +102,17 @@ class PipelineService:
         )
 
         # 5) Slice each bundle → 13 section PNGs
-        emit_status("composing", "이미지 분할 및 합성 중")
+        emit_status("slicing", "이미지 분할 중: 5 묶음 → 13 섹션")
         section_dir = output_dir / "sections"
         section_paths: list[Path | None] = [None] * 13
         for result in results:
             bundle_id = result["bundle_id"]
-            mapping = BUNDLE_SECTION_MAP[bundle_id]
+            mapping = BUNDLE_SECTION_MAP.get(bundle_id)
+            if mapping is None:
+                raise ValueError(
+                    f"Unknown bundle_id {bundle_id!r} — not in BUNDLE_SECTION_MAP. "
+                    f"Known keys: {list(BUNDLE_SECTION_MAP)}"
+                )
             slices = [SectionSlice(name=name, y_start=y0, y_end=y1) for name, y0, y1 in mapping]
             crops = self.slicer.slice_and_resize(
                 bundle_png=result["path"], slices=slices, output_dir=section_dir,
@@ -123,6 +128,7 @@ class PipelineService:
                     section_paths[section_num] = crop_path
 
         # 6) Compose combined
+        emit_status("composing", "세로 합성 중: 13 섹션 → combined.png")
         logger.info("[%s] compose", job_id)
         combined_path = output_dir / "combined.png"
         # Filter None — placeholder composer handles missing paths

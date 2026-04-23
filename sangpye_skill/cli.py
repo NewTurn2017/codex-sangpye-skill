@@ -6,6 +6,7 @@ import logging
 import secrets
 import sys
 import time
+import traceback
 from pathlib import Path
 
 from sangpye_skill import __version__
@@ -80,8 +81,13 @@ def main() -> int:
     except SystemExit as e:
         _stderr(f"error: {e}")
         return EXIT_INPUT
+    except OSError as e:
+        # Covers unwritable --output paths (e.g. /root/noaccess) whose mkdir
+        # lives inside _validate_inputs.
+        _stderr(f"error (filesystem): {e}")
+        return EXIT_FS
 
-    _stderr("[1/6] codex login status: checking...")
+    _stderr("codex login status: checking...")
     try:
         pipeline = PipelineService(quality=args.quality, codex_bin=args.codex_bin)
     except CodexAuthError as e:
@@ -114,7 +120,11 @@ def main() -> int:
         _stderr(f"error (filesystem): {e}")
         return EXIT_FS
     except Exception as e:
+        # Developer/programming errors — still map to EXIT_API so agents have
+        # a stable failure code, but dump the traceback to stderr so humans
+        # can diagnose the real cause.
         _stderr(f"error (pipeline): {e}")
+        _stderr(traceback.format_exc())
         return EXIT_API
 
     elapsed = round(time.time() - t0, 1)
@@ -122,10 +132,14 @@ def main() -> int:
 
     # Write analysis.json, then emit machine-readable JSON on stdout
     plan_path = output_dir / "analysis.json"
-    plan_path.write_text(
-        json.dumps(result["plan"], ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    try:
+        plan_path.write_text(
+            json.dumps(result["plan"], ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+    except OSError as e:
+        _stderr(f"error (filesystem): {e}")
+        return EXIT_FS
 
     payload = {
         "job_id": job_id,

@@ -1,7 +1,6 @@
 """ImageGenerator — parallel image_generation tool calls for bundles."""
 from __future__ import annotations
 import asyncio
-import base64
 import logging
 import time
 from pathlib import Path
@@ -68,7 +67,7 @@ class ImageGenerator:
                 while time.time() < t_end:
                     if cancel_check and cancel_check():
                         raise JobCancelled()
-                    time.sleep(min(3, t_end - time.time()))
+                    time.sleep(max(0, min(3, t_end - time.time())))
         raise last_error or RuntimeError("bundle generation failed")
 
     def render_bundles_parallel(
@@ -87,7 +86,7 @@ class ImageGenerator:
         sem = asyncio.Semaphore(MAX_CONCURRENCY)
         completed = [0]
 
-        async def run_one(idx: int, bundle: dict) -> dict:
+        async def run_one(bundle: dict) -> dict:
             async with sem:
                 img_bytes = await asyncio.to_thread(
                     self._generate_single_bundle, master_image, bundle, cancel_check
@@ -100,6 +99,6 @@ class ImageGenerator:
                 return {"bundle_id": bundle["bundle_id"], "path": out}
 
         async def gather_all():
-            return await asyncio.gather(*[run_one(i, b) for i, b in enumerate(bundles)])
+            return await asyncio.gather(*[run_one(b) for b in bundles])
 
         return asyncio.run(gather_all())

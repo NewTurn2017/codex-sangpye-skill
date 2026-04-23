@@ -27,7 +27,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="sangpye",
         description=(
-            "Generate a 13-section Korean 상세페이지(상폐) image set (1080x7500 combined) "
+            "Generate a 13-section Korean 상세페이지(상폐) image set (1080x12720 combined) "
             "from product photos via Codex OAuth."
         ),
     )

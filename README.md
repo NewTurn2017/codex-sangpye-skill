@@ -24,7 +24,7 @@ unset CODEX_API_KEY   # if set, it overrides OAuth
 # (OPENAI_API_KEY is ignored at runtime — no need to unset.)
 
 # 3. Install the skill
-uv tool install git+https://github.com/<YOUR USER>/codex-sangpye-skill
+uv tool install git+https://github.com/NewTurn2017/codex-sangpye-skill
 
 # 4. Verify
 sangpye --version

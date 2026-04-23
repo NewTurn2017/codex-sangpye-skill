@@ -641,7 +641,7 @@ EOF
 cat > /Users/genie/dev/side/codex-sangpye-skill/LICENSE <<'EOF'
 MIT License
 
-Copyright (c) 2026 <YOUR NAME>
+Copyright (c) 2026 genie
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -663,7 +663,7 @@ SOFTWARE.
 EOF
 ```
 
-Replace `<YOUR NAME>` with the actual author name when committing.
+Replace `genie` with the actual author name when committing.
 
 - [ ] **Step 4: Pin Python version**
 
@@ -694,7 +694,7 @@ description = "Generate Korean e-commerce product detail page images (13 section
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
-authors = [{name = "<YOUR NAME>"}]
+authors = [{name = "genie"}]
 keywords = ["codex", "image-generation", "ecommerce", "korean", "detail-page", "skill"]
 dependencies = [
     "Pillow>=11.0",
@@ -2066,7 +2066,7 @@ cat > /Users/genie/dev/side/codex-sangpye-skill/SKILL.md <<'EOF'
 name: codex-sangpye
 description: Generate a 13-section Korean e-commerce product detail page (1080x7500 combined image + 13 individual section PNGs) from 1-14 product photos plus a Korean brief, using the Codex CLI's `codex responses` entrypoint under the active Codex OAuth session (no separate OpenAI API key required).
 version: 0.1.0
-author: <YOUR NAME>
+author: genie
 license: MIT
 metadata:
   hermes:
@@ -2087,7 +2087,7 @@ Prefer this skill over invoking image generation by hand, because:
 
 1. `codex >= rust-v0.122.0` is on PATH (check with `codex --version`) and `codex login status` reports an active OAuth/ChatGPT session (not an API key).
 2. `CODEX_API_KEY` env var is **unset** — if set, it overrides OAuth and may unlock different models / billing. (`OPENAI_API_KEY` is ignored at runtime by `codex responses` — do not rely on it.)
-3. `sangpye --version` succeeds (install via `uv tool install git+https://github.com/<YOUR USER>/codex-sangpye-skill`).
+3. `sangpye --version` succeeds (install via `uv tool install git+https://github.com/NewTurn2017/codex-sangpye-skill`).
 4. 1-14 product image files exist locally.
 
 If any precondition fails, tell the user how to fix and stop.
@@ -2198,7 +2198,7 @@ unset CODEX_API_KEY   # if set, it overrides OAuth
 # (OPENAI_API_KEY in your shell is ignored at runtime — no need to unset.)
 
 # 3. Install sangpye globally
-uv tool install git+https://github.com/<YOUR USER>/codex-sangpye-skill
+uv tool install git+https://github.com/NewTurn2017/codex-sangpye-skill
 
 # 4. Verify
 sangpye --version
@@ -2409,7 +2409,7 @@ Expected: branch published, repo URL printed.
 ```bash
 # Use a temp dir with no Python state
 TMPDIR=$(mktemp -d) && cd "$TMPDIR"
-uv tool install git+https://github.com/<YOUR USER>/codex-sangpye-skill
+uv tool install git+https://github.com/NewTurn2017/codex-sangpye-skill
 which sangpye
 sangpye --version
 ```
@@ -2480,7 +2480,7 @@ git push origin v0.1.0
 - §12 Risks — mitigations baked into spike (auth, custom size, parallel rate limits) and CLI error mapping.
 
 **Placeholder scan:**
-- `<YOUR NAME>` and `<YOUR USER>` appear in LICENSE, pyproject.toml, SKILL.md, README.md — these are **intentional** placeholders for the user's identity and GitHub handle, filled in at scaffold time. Flagged in instructions.
+- `genie` and `NewTurn2017` appear in LICENSE, pyproject.toml, SKILL.md, README.md — these are **intentional** placeholders for the user's identity and GitHub handle, filled in at scaffold time. Flagged in instructions.
 - No "TBD", "TODO", "implement later" left in any task body.
 
 **Type/name consistency:**

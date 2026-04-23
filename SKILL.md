@@ -23,7 +23,7 @@ Prefer this skill over invoking image generation by hand, because:
 
 1. `codex >= 0.121.0` is on PATH (check with `codex --version`) and `codex login status` reports an active OAuth/ChatGPT session (not an API key).
 2. `CODEX_API_KEY` env var is **unset** — if set, it overrides OAuth at runtime. (`OPENAI_API_KEY` is ignored by `codex responses`; no need to unset.)
-3. `sangpye --version` succeeds (install via `uv tool install git+https://github.com/<YOUR USER>/codex-sangpye-skill`).
+3. `sangpye --version` succeeds (install via `uv tool install git+https://github.com/NewTurn2017/codex-sangpye-skill`).
 4. 1–14 product image files exist locally.
 
 If any precondition fails, tell the user how to fix and stop.

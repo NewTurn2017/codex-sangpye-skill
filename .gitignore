@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.uv/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.coverage
+*.png
+!examples/sample_product.jpg
+!examples/*.png
+.DS_Store
+
+# Spike outputs (kept local, not committed)
+spike/codex_oauth/*.png
+spike/codex_oauth/sample_inputs/*
+!spike/codex_oauth/sample_inputs/.gitkeep

@@ -100,7 +100,23 @@ def main() -> int:
         _stderr(f"      [{status}] {step}")
 
     def on_progress(done: int, total: int) -> None:
-        _stderr(f"      progress: {done}/{total}")
+        _stderr(f"      progress: {done}/{total} bundles")
+
+    def on_event(event: dict) -> None:
+        etype = event.get("type", "?")
+        bid = event.get("bundle_id", "?")
+        if etype == "bundle_start":
+            attempt = event.get("attempt", 1)
+            if attempt == 1:
+                _stderr(f"        ▶ {bid} generating...")
+            else:
+                _stderr(f"        ▶ {bid} retry {attempt}/{event.get('max_attempts')}...")
+        elif etype == "bundle_retry":
+            reason = event.get("reason", "error")
+            delay = event.get("delay_sec", 0)
+            _stderr(f"        ⟲ {bid} {reason}, backing off {delay}s (attempt {event.get('attempt')})")
+        elif etype == "bundle_done":
+            _stderr(f"        ✓ {bid} done in {event.get('elapsed_sec')}s")
 
     t0 = time.time()
     try:
@@ -112,6 +128,7 @@ def main() -> int:
             job_id=job_id,
             progress_callback=on_progress,
             status_callback=on_status,
+            event_callback=on_event,
         )
     except (CodexAuthError, CodexCallError) as e:
         _stderr(f"error (codex): {e}")
@@ -130,23 +147,14 @@ def main() -> int:
     elapsed = round(time.time() - t0, 1)
     _stderr(f"Done. Total: {elapsed}s")
 
-    # Write analysis.json, then emit machine-readable JSON on stdout
-    plan_path = output_dir / "analysis.json"
-    try:
-        plan_path.write_text(
-            json.dumps(result["plan"], ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
-    except OSError as e:
-        _stderr(f"error (filesystem): {e}")
-        return EXIT_FS
-
+    # analysis.json is written eagerly by pipeline.run() right after Step 1,
+    # so it survives image-gen failures. We just surface its path in the JSON.
     payload = {
         "job_id": job_id,
         "output_dir": str(output_dir),
         "combined": str(result["combined_path"]),
         "sections": [str(p) for p in result["section_paths"]],
-        "plan_path": str(plan_path),
+        "plan_path": str(result["plan_path"]),
         "elapsed_sec": elapsed,
     }
     print(json.dumps(payload, ensure_ascii=False))

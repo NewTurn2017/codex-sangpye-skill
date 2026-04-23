@@ -25,7 +25,7 @@
 
 - 키 관리 안 함 · 별도 billing 없음 · ChatGPT 쿼터 안에서 돌아감
 - `gpt-5.4` 멀티모달 분석 + `image_generation` 툴 5회 병렬 호출 → 13섹션 자동 생성
-- 약 5분 내 완성 (검증 측정치: **312초** full pipeline)
+- 보통 **5~10분** 소요 (한가할 땐 ~5분, ChatGPT 서버가 혼잡하면 최대 15분). 재시도 로직이 `server overloaded`/`rate_limit`를 자동으로 흡수합니다.
 
 ### 필수 사전 준비 (3가지)
 
@@ -304,8 +304,10 @@ Input: 1~14장 이미지 + 한국어 프롬프트
 | `error: codex responses expects a streaming payload` | codex 버전 낮음 → 업그레이드 |
 | `error (codex): ... model not available` | ChatGPT 구독 티어에 `gpt-5.4` 없음 — 업그레이드 필요 |
 | `error (codex): rate_limit` | ChatGPT 쿼터 throttle — 잠시 대기 or `--quality standard` |
-| 10분+ 소요 | OAuth에서 병렬 호출이 soft-serialize 될 때 정상 범위 |
+| 10분+ 소요 | 재시도 흡수 중 — 그대로 두기. OAuth 혼잡 시 정상 범위 |
+| `server overloaded`가 자주 뜬다 | `SANGPYE_MAX_CONCURRENCY=1` 환경변수로 병렬도 1로 내리기 (기본 2). 총 시간은 늘어나지만 재시도는 줄어듦 |
 | 파이프라인 hang | `codex --version` 확인, 0.121.0 이상이어야 함 |
+| 생성 도중 중단됐는데 다시 돌리긴 아깝다 | `output_dir/{job_id}/analysis.json`이 이미 저장돼 있으니 `sangpye` 인자만 바꿔 재사용 가능 |
 
 ---
 

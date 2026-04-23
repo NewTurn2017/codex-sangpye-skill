@@ -84,7 +84,15 @@ Show the user:
 - **`error: codex responses expects a streaming payload`** → Upgrade to `codex >= 0.121.0` (0.123.0 tested).
 - **`error (codex): ... model not available`** → The user's ChatGPT subscription tier may not include `gpt-5.4`. Surface the error verbatim — do not retry.
 - **`error (codex): rate_limit`** → ChatGPT subscription is throttling. Wait a few minutes and retry, or pass `--quality standard`.
+- **Frequent `server overloaded` retries visible in stderr** → Lower parallelism by running with `SANGPYE_MAX_CONCURRENCY=1 sangpye ...` (default is 2). Total runtime grows but retries shrink.
 - **Pipeline hangs** → Likely `codex` version mismatch. Upgrade to `0.121.0+`.
+
+## Runtime expectations
+
+- **Typical**: 5–10 minutes for a full 13-section run.
+- **Under load**: up to ~15 minutes; the CLI transparently retries `server overloaded` and `rate_limit` events with exponential backoff (10s/30s/60s/90s/150s × 1.5 for overload).
+- `analysis.json` is persisted to `output_dir/{job_id}/analysis.json` **immediately after Step 1** (Codex analysis), so it survives later image-gen failures.
+- Stderr shows per-bundle lifecycle events (`▶ B2_OPENING generating...`, `⟲ B2_OPENING overloaded, backing off 45s`, `✓ B2_OPENING done in 67.3s`) so progress is visible during long runs.
 
 ## Agent rule
 

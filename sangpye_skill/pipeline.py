@@ -5,6 +5,7 @@ the user-supplied progress_callback and status_callback (wired by the CLI to
 stderr printers).
 """
 from __future__ import annotations
+import json
 import logging
 from pathlib import Path
 from typing import Callable, Literal
@@ -58,6 +59,7 @@ class PipelineService:
         job_id: str,
         progress_callback: Callable[[int, int], None] | None = None,
         status_callback: Callable[[str, str], None] | None = None,
+        event_callback: Callable[[dict], None] | None = None,
     ) -> dict:
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -69,6 +71,15 @@ class PipelineService:
         emit_status("analyzing", "Codex(gpt-5.4) 분석 중: 제품 DNA + 5 묶음 스펙 생성")
         logger.info("[%s] analyze", job_id)
         plan = self.analysis.build_plan(images=user_images, prompt=prompt, category=category)
+
+        # 1.5) Eagerly persist analysis.json so a later image-gen failure still
+        # preserves the (expensive) creative plan for the user to re-use.
+        plan_path = output_dir / "analysis.json"
+        plan_path.write_text(
+            json.dumps(plan.model_dump(), ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        logger.info("[%s] analysis.json written to %s", job_id, plan_path)
 
         # 2) Select master
         master_idx = min(plan.master_image_index, len(user_images) - 1)
@@ -99,6 +110,7 @@ class PipelineService:
             bundles=bundles,
             output_dir=bundle_dir,
             progress_callback=progress_callback,
+            event_callback=event_callback,
         )
 
         # 5) Slice each bundle → 13 section PNGs
@@ -139,6 +151,7 @@ class PipelineService:
             "section_paths": [p for p in section_paths if p is not None],
             "combined_path": combined_path,
             "plan": plan.model_dump(),
+            "plan_path": plan_path,
             "master_image_index": master_idx,
             "product_dna": plan.product_dna.model_dump(),
         }

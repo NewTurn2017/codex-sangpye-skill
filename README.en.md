@@ -26,7 +26,7 @@ Internally, every model call tunnels through `codex responses` and inherits your
 
 - No API key to create or store · No separate billing · Runs inside your ChatGPT quota
 - `gpt-5.4` multimodal analysis + 5 parallel `image_generation` tool calls → 13 sections auto-assembled
-- ~5 minutes end-to-end (verified: **312 s** full pipeline)
+- Typical runtime: **5–10 minutes** (as fast as ~5 min when ChatGPT is idle, up to ~15 min under load). The CLI auto-retries `server overloaded` / `rate_limit` transparently.
 
 ### Prerequisites (3 things)
 
@@ -308,8 +308,10 @@ This skill is an **extract** of the core pipeline from a private FastAPI + Celer
 | `error: codex responses expects a streaming payload` | Upgrade codex |
 | `error (codex): ... model not available` | Your ChatGPT tier may not expose `gpt-5.4` — upgrade subscription |
 | `error (codex): rate_limit` | ChatGPT quota throttle — wait, or use `--quality standard` |
-| Runs take >10 min | OAuth may soft-serialize parallel calls; expected under load |
+| Runs take >10 min | Retries absorbing overload — let it finish. Expected under ChatGPT load |
+| Frequent `server overloaded` | Lower concurrency: `SANGPYE_MAX_CONCURRENCY=1` (default is 2). Longer total, fewer retries |
 | Pipeline hangs | Check `codex --version` ≥ 0.121.0; older versions use a different event schema |
+| Run crashed mid-way | `output_dir/{job_id}/analysis.json` was saved right after Step 1 — you can reuse it manually |
 
 ---
 

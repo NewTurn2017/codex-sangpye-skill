@@ -1202,7 +1202,7 @@ def test_call_responses_aggregates_text(monkeypatch, fake_login_ok):
     out = client.call_responses(
         model="gpt-5.4",
         instructions="Return a JSON object with key k.",
-        input=[{"role": "user", "content": "give me json"}],
+        messages=[{"role": "user", "content": "give me json"}],
         response_format={"type": "json_object"},
     )
     assert out == '{"k": "v"}'
@@ -1541,7 +1541,7 @@ class AnalysisService:
                 raw = self.client.call_responses(
                     model=self.model,
                     instructions=instructions,
-                    input=[{"role": "user", "content": content}],
+                    messages=[{"role": "user", "content": content}],
                     response_format={"type": "json_object"},
                 )
                 logger.info("analysis response (%d chars): %s", len(raw), raw[:800])

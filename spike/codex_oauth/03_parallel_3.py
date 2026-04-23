@@ -15,7 +15,26 @@ import time
 from pathlib import Path
 
 SPIKE_DIR = Path(__file__).parent
-SAMPLE = SPIKE_DIR / "sample_inputs" / "earbuds_01.jpg"
+SAMPLE = SPIKE_DIR / "sample_inputs" / "genie.jpg"
+
+
+VARIATIONS = {
+    "hero": (
+        "Vertical hero portrait, 1088x1600. Feature the referenced '지니' character front-and-center, "
+        "confident pose, premium lighting. Korean headline top: 'codex-sangpye-skill'. "
+        "Sub: '지니의 상세페이지 자동 생성 스킬'."
+    ),
+    "lifestyle": (
+        "Vertical lifestyle scene, 1088x1600. The '지니' character at a laptop, watching 13 product "
+        "detail-page sections auto-generate on screen. Warm café lighting. "
+        "Korean caption bottom: '사진 업로드 한 번, 상세페이지 13장 끝'."
+    ),
+    "feature": (
+        "Vertical feature infographic, 1088x1600. The '지니' character pointing at a visual of "
+        "13 stacked detail-page sections. Clean minimal design. "
+        "Korean headline: 'Hero → CTA, 13섹션 자동 생성'."
+    ),
+}
 
 
 def build_payload(b64: str, label: str) -> dict:
@@ -25,8 +44,7 @@ def build_payload(b64: str, label: str) -> dict:
             "role": "user",
             "content": [
                 {"type": "input_image", "image_url": f"data:image/jpeg;base64,{b64}"},
-                {"type": "input_text",
-                 "text": f"Vertical product image, 1088x1600, {label} variation, premium look."},
+                {"type": "input_text", "text": VARIATIONS[label]},
             ],
         }],
         "tools": [{"type": "image_generation", "size": "1088x1600", "quality": "high"}],
@@ -87,7 +105,7 @@ async def main() -> int:
         print(f"FAIL: sample missing at {SAMPLE}", file=sys.stderr)
         return 2
     b64 = base64.b64encode(SAMPLE.read_bytes()).decode()
-    payloads = [build_payload(b64, lbl) for lbl in ("hero", "lifestyle", "detail")]
+    payloads = [build_payload(b64, lbl) for lbl in ("hero", "lifestyle", "feature")]
 
     print("[spike 03] firing 3 parallel image calls...", file=sys.stderr)
     t0 = time.time()

@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 SPIKE_DIR = Path(__file__).parent
-SAMPLE = SPIKE_DIR / "sample_inputs" / "earbuds_01.jpg"
+SAMPLE = SPIKE_DIR / "sample_inputs" / "genie.jpg"
 OUT = SPIKE_DIR / "spike02_hero.png"
 
 
@@ -26,13 +26,17 @@ def main() -> int:
 
     b64 = base64.b64encode(SAMPLE.read_bytes()).decode()
     prompt = (
-        "Cinematic vertical product hero, 1088x1600. "
-        "Reference the uploaded product image — keep the silhouette, color, and form recognizable. "
-        "Dark techwear lighting, dramatic rim light, clean background. "
-        "Korean headline overlay top-center reading: '지금, 무선의 한계를 넘다'. "
-        "Sub-line: '30시간 배터리 · IPX5 방수 · 액티브 노이즈 캔슬링'. "
-        "Render the Korean text crisply and legibly. Premium e-commerce composition, "
-        "ready to drop into a detail page."
+        "Vertical promo hero image, 1088x1600, Korean e-commerce ad style. "
+        "The uploaded reference shows a character named '지니' (genie). "
+        "Keep the character's face, hair, expression, and outfit recognizable — use them as the hero. "
+        "Place the character on the left side of the composition, looking at the viewer with confidence. "
+        "Dramatic studio lighting, clean premium backdrop (soft gradient — cobalt to magenta). "
+        "Korean headline overlay top-right, large bold sans-serif, legible: "
+        "'codex-sangpye-skill'. "
+        "Sub-line directly below: '지니가 만드는 한국 이커머스 상세페이지 스킬'. "
+        "Small tagline at the bottom: '상품 사진만 있으면, 고전환 상세페이지 13장 자동 생성'. "
+        "Render all Korean text crisply and legibly. "
+        "Feel: confident, playful, premium. Save as a launch banner ready to post on SNS."
     )
     payload = {
         "model": "gpt-image-2",

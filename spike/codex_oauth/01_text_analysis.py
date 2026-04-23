@@ -15,13 +15,13 @@ import sys
 from pathlib import Path
 
 SPIKE_DIR = Path(__file__).parent
-SAMPLE = SPIKE_DIR / "sample_inputs" / "earbuds_01.jpg"
+SAMPLE = SPIKE_DIR / "sample_inputs" / "genie.jpg"
 
 
 def main() -> int:
     if not SAMPLE.exists():
         print(f"FAIL: sample missing at {SAMPLE}", file=sys.stderr)
-        print(f"      drop a JPEG product image there before running this spike", file=sys.stderr)
+        print(f"      drop a JPEG reference image there before running this spike", file=sys.stderr)
         return 2
 
     b64 = base64.b64encode(SAMPLE.read_bytes()).decode()
@@ -31,16 +31,21 @@ def main() -> int:
             {
                 "role": "system",
                 "content": (
+                    "You are analyzing a reference image for a Korean marketing/promo asset. "
                     "Return ONLY a single JSON object with keys: "
-                    "name (string), category (string), usp (string), "
-                    "key_features (list of strings). No prose, no markdown."
+                    "name (string — who/what is in the image), "
+                    "category (string — e.g. character, person, mascot, product), "
+                    "usp (string — one-line Korean selling hook), "
+                    "key_features (list of 3-5 short Korean strings — visual or personality traits). "
+                    "No prose, no markdown."
                 ),
             },
             {
                 "role": "user",
                 "content": [
                     {"type": "input_image", "image_url": f"data:image/jpeg;base64,{b64}"},
-                    {"type": "input_text", "text": "이 제품을 한국 이커머스용으로 분석해서 위 4개 키만 채워줘."},
+                    {"type": "input_text",
+                     "text": "이 이미지를 'codex-sangpye-skill' (한국 이커머스 상세페이지 자동 생성 스킬) 홍보 자산으로 쓰기 위해 분석해줘. 위 4개 키만 채워."},
                 ],
             },
         ],

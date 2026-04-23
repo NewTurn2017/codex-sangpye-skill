@@ -253,8 +253,27 @@ sangpye \
 | 0 | Success |
 | 1 | Codex auth error (not logged in / session expired) |
 | 2 | Input error (bad path, too many images, etc.) |
-| 3 | API / generation error (rate limit, model not available, etc.) |
+| 3 | API / generation error — `combined.png` was NOT produced |
 | 4 | Filesystem error (permissions, disk full) |
+| 5 | **Partial success** — some bundles failed but `combined.png` was still produced (failed sections use dark placeholders). Check the `failed_bundles` JSON field. |
+
+### 🔁 Auto-resume
+
+If a run partially fails (e.g., one bundle exhausted all retries under server load), **re-invoke with the same `--output` and `--job-id`**:
+
+```bash
+sangpye \
+  --image ./your_product.jpg \
+  --prompt "..." \
+  --output ./out \
+  --job-id <same as previous run>    # stderr shows the id on failure
+```
+
+- `output_dir/{job_id}/analysis.json` exists → **Step 1 (gpt-5.4 analysis) is auto-skipped** — saves quota + ~30s
+- `bundles/{bundle_id}.png` already present → **that bundle is NOT re-generated**. With 4 of 5 already complete, only the failed one retries (~2-3 min)
+- `sections/` + `combined.png` are always rebuilt (their cost is negligible)
+
+Net UX: "re-run = pick up where it left off, retry only what failed."
 
 ---
 

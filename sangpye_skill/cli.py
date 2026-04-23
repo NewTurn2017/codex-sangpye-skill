@@ -19,6 +19,7 @@ EXIT_AUTH = 1
 EXIT_INPUT = 2
 EXIT_API = 3
 EXIT_FS = 4
+EXIT_PARTIAL = 5  # some bundles failed but combined.png was still produced
 
 CATEGORIES = ["electronics", "fashion", "food", "beauty", "home", "general"]
 
@@ -117,6 +118,8 @@ def main() -> int:
             _stderr(f"        ⟲ {bid} {reason}, backing off {delay}s (attempt {event.get('attempt')})")
         elif etype == "bundle_done":
             _stderr(f"        ✓ {bid} done in {event.get('elapsed_sec')}s")
+        elif etype == "bundle_failed":
+            _stderr(f"        ✗ {bid} FAILED after all retries: {event.get('error', '')[:120]}")
 
     t0 = time.time()
     try:
@@ -145,6 +148,22 @@ def main() -> int:
         return EXIT_API
 
     elapsed = round(time.time() - t0, 1)
+    failed_bundles = result.get("failed_bundles", [])
+    reused_bundles = result.get("reused_bundles", [])
+
+    if reused_bundles:
+        _stderr(f"Reused {len(reused_bundles)} bundle(s): {', '.join(reused_bundles)}")
+    if failed_bundles:
+        _stderr(
+            f"⚠ Partial: {len(failed_bundles)} bundle(s) failed "
+            f"({', '.join(failed_bundles)}). combined.png has dark placeholders "
+            f"for their sections."
+        )
+        _stderr(
+            f"  Re-run the same `sangpye --output {args.output} --job-id {job_id} ...` "
+            f"to retry only the failed bundle(s) without redoing Step 1."
+        )
+
     _stderr(f"Done. Total: {elapsed}s")
 
     # analysis.json is written eagerly by pipeline.run() right after Step 1,
@@ -156,9 +175,11 @@ def main() -> int:
         "sections": [str(p) for p in result["section_paths"]],
         "plan_path": str(result["plan_path"]),
         "elapsed_sec": elapsed,
+        "failed_bundles": failed_bundles,
+        "reused_bundles": reused_bundles,
     }
     print(json.dumps(payload, ensure_ascii=False))
-    return EXIT_OK
+    return EXIT_PARTIAL if failed_bundles else EXIT_OK
 
 
 if __name__ == "__main__":

@@ -70,13 +70,28 @@ sangpye \
 
 `stdout` (single JSON line):
 ```json
-{"job_id":"a1b2c3d4","output_dir":"/abs/path/to/out/a1b2c3d4","combined":"/abs/path/to/out/a1b2c3d4/combined.png","sections":["/abs/path/to/out/a1b2c3d4/sections/01_hero.png", "..."],"plan_path":"/abs/path/to/out/a1b2c3d4/analysis.json","elapsed_sec":252.4}
+{"job_id":"a1b2c3d4","output_dir":"/abs/...","combined":"/abs/.../combined.png","sections":["/abs/.../01_hero.png", "..."],"plan_path":"/abs/.../analysis.json","elapsed_sec":252.4,"failed_bundles":[],"reused_bundles":[]}
 ```
 
 Show the user:
 1. The absolute path to `combined.png` (the main deliverable).
 2. The `job_id` so they can find the artifacts again.
 3. Optionally, the list of 13 individual section PNGs.
+
+### Partial success (exit code 5)
+
+If `failed_bundles` is non-empty, the CLI exited with code 5: `combined.png` was still produced, but some sections use dark placeholders. Tell the user:
+- How many bundles failed + which ones (e.g. `"B2_OPENING"`)
+- They can **retry only the failed bundles** by re-running with the same `--output` and `--job-id` — the skill auto-resumes from the saved `analysis.json` and existing `bundles/*.png`.
+
+### Auto-resume
+
+When `output_dir/{job_id}/` already contains `analysis.json`:
+- Step 1 (gpt-5.4 analysis) is skipped — the stored plan is reused.
+- Individual bundles with a non-empty `bundles/{id}.png` on disk are reused.
+- Only missing bundles are generated; then slice + compose run over the full set.
+
+This makes a failed run trivial to recover from without re-burning quota. Suggest this to the user whenever they see `exit=5` or a bundle failure.
 
 ## Troubleshooting
 

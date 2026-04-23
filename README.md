@@ -250,8 +250,27 @@ sangpye \
 | 0 | 성공 |
 | 1 | codex 인증 오류 (로그아웃, 만료) |
 | 2 | 입력 오류 (잘못된 경로, 이미지 수 초과) |
-| 3 | API/생성 오류 (rate limit, 모델 없음 등) |
+| 3 | API/생성 오류 (rate limit, 모델 없음 등) — combined.png 생성 안 됨 |
 | 4 | 파일시스템 오류 (권한, 디스크 부족) |
+| 5 | **부분 성공** — 1개 이상 묶음은 실패했지만 combined.png는 생성됨 (실패 섹션은 dark placeholder). `failed_bundles` JSON 필드로 확인. |
+
+### 🔁 자동 재개 (Auto-resume)
+
+실행 중간에 서버 과부하로 일부 번들이 실패했다면, **같은 `--output --job-id` 조합으로 재실행**하세요:
+
+```bash
+sangpye \
+  --image ./your_product.jpg \
+  --prompt "..." \
+  --output ./out \
+  --job-id <이전과 동일>         # 실패 시 stderr에 표시됨
+```
+
+- `output_dir/{job_id}/analysis.json`이 있으면 **gpt-5.4 분석 단계(Step 1) 자동 스킵** — 쿼터 절약 + ~30초 단축
+- `bundles/{bundle_id}.png`가 이미 있는 번들은 **재생성 안 함** — 이미 성공한 4개 번들이 있으면 실패한 1개만 재시도 (~2~3분)
+- `sections/` + `combined.png`는 항상 다시 만듦 (비용 무시 가능한 수준)
+
+총 UX: "다시 돌리기 = 이전 진행 그대로, 실패한 것만"
 
 ---
 

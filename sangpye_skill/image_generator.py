@@ -115,35 +115,61 @@ class ImageGenerator:
     ) -> list[dict]:
         """Generate all bundles concurrently (bounded by MAX_CONCURRENCY).
 
-        Returns: [{"bundle_id": ..., "path": Path}, ...] in input order.
+        Graceful partial: one bundle's permanent failure does NOT cancel the
+        others. Each bundle's result dict carries either `path` (on success) or
+        `error` (after MAX_RETRIES exhausted). Callers should check both.
+
+        Returns (in input order): [
+            {"bundle_id": ..., "path": Path, "elapsed_sec": float},
+            {"bundle_id": ..., "path": None, "error": "...", "elapsed_sec": float},
+            ...
+        ]
 
         If `event_callback` is supplied, it receives lifecycle event dicts:
           {"type": "bundle_start",  "bundle_id": str, "attempt": int, ...}
           {"type": "bundle_retry",  "bundle_id": str, "delay_sec": int, "reason": ..., ...}
           {"type": "bundle_done",   "bundle_id": str, "elapsed_sec": float, "path": str}
+          {"type": "bundle_failed", "bundle_id": str, "error": str, "elapsed_sec": float}
         """
         output_dir.mkdir(parents=True, exist_ok=True)
         sem = asyncio.Semaphore(MAX_CONCURRENCY)
         completed = [0]
 
         async def run_one(bundle: dict) -> dict:
+            bundle_id = bundle["bundle_id"]
             async with sem:
                 t0 = time.time()
-                img_bytes = await asyncio.to_thread(
-                    self._generate_single_bundle,
-                    master_image, bundle, cancel_check, event_callback,
-                )
-                out = output_dir / f"{bundle['bundle_id']}.png"
+                try:
+                    img_bytes = await asyncio.to_thread(
+                        self._generate_single_bundle,
+                        master_image, bundle, cancel_check, event_callback,
+                    )
+                except Exception as e:
+                    # Permanent failure — after MAX_RETRIES exhausted in
+                    # _generate_single_bundle. Don't cancel the siblings;
+                    # report partial and let pipeline decide.
+                    elapsed = round(time.time() - t0, 1)
+                    completed[0] += 1
+                    _emit(event_callback, {
+                        "type": "bundle_failed", "bundle_id": bundle_id,
+                        "error": str(e)[:300], "elapsed_sec": elapsed,
+                    })
+                    if progress_callback:
+                        progress_callback(completed[0], len(bundles))
+                    return {"bundle_id": bundle_id, "path": None,
+                            "error": str(e)[:300], "elapsed_sec": elapsed}
+
+                out = output_dir / f"{bundle_id}.png"
                 out.write_bytes(img_bytes)
                 completed[0] += 1
                 elapsed = round(time.time() - t0, 1)
                 _emit(event_callback, {
-                    "type": "bundle_done", "bundle_id": bundle["bundle_id"],
+                    "type": "bundle_done", "bundle_id": bundle_id,
                     "elapsed_sec": elapsed, "path": str(out),
                 })
                 if progress_callback:
                     progress_callback(completed[0], len(bundles))
-                return {"bundle_id": bundle["bundle_id"], "path": out}
+                return {"bundle_id": bundle_id, "path": out, "elapsed_sec": elapsed}
 
         async def gather_all():
             return await asyncio.gather(*[run_one(b) for b in bundles])

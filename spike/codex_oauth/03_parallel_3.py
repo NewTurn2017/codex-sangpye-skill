@@ -38,8 +38,15 @@ VARIATIONS = {
 
 
 def build_payload(b64: str, label: str) -> dict:
+    # Orchestrator model + image_generation tool (same pattern as Spike 02).
+    # ChatGPT OAuth rejects direct gpt-image-2 calls; must go through a chat model.
     return {
-        "model": "gpt-image-2",
+        "model": "gpt-5.4",
+        "instructions": (
+            "You are a Korean e-commerce art director. Produce a single vertical 1088x1600 "
+            "promo image. Always preserve the identity of the referenced '지니' character "
+            "(face, hair, expression, outfit) and render all Korean text crisply and legibly."
+        ),
         "input": [{
             "role": "user",
             "content": [
@@ -50,6 +57,7 @@ def build_payload(b64: str, label: str) -> dict:
         "tools": [{"type": "image_generation", "size": "1088x1600", "quality": "high"}],
         "tool_choice": {"type": "image_generation"},
         "stream": True,
+        "store": False,
     }
 
 

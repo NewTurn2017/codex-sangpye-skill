@@ -38,8 +38,16 @@ def main() -> int:
         "Render all Korean text crisply and legibly. "
         "Feel: confident, playful, premium. Save as a launch banner ready to post on SNS."
     )
+    # NOTE: model here is the *orchestrator* (which calls the image_generation tool).
+    # ChatGPT OAuth refuses direct gpt-image-2 calls ("model is not supported"), but
+    # the image_generation tool invoked by a chat model is permitted.
     payload = {
-        "model": "gpt-image-2",
+        "model": "gpt-5.4",
+        "instructions": (
+            "You are a Korean e-commerce art director. Produce a single vertical 1088x1600 "
+            "promo hero image. Always preserve the identity of the referenced character "
+            "(face, hair, expression, outfit) and render all Korean text crisply and legibly."
+        ),
         "input": [{
             "role": "user",
             "content": [
@@ -50,6 +58,7 @@ def main() -> int:
         "tools": [{"type": "image_generation", "size": "1088x1600", "quality": "high"}],
         "tool_choice": {"type": "image_generation"},
         "stream": True,
+        "store": False,
     }
 
     print(f"[spike 02] generating 1088x1600 hero from {SAMPLE.name}...", file=sys.stderr)

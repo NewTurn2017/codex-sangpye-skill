@@ -27,30 +27,28 @@ def main() -> int:
     b64 = base64.b64encode(SAMPLE.read_bytes()).decode()
     payload = {
         "model": "gpt-5.4",
+        "instructions": (
+            "You are analyzing a reference image for a Korean marketing/promo asset. "
+            "Return ONLY a single JSON object with keys: "
+            "name (string — who/what is in the image), "
+            "category (string — e.g. character, person, mascot, product), "
+            "usp (string — one-line Korean selling hook), "
+            "key_features (list of 3-5 short Korean strings — visual or personality traits). "
+            "No prose, no markdown, no code fences."
+        ),
         "input": [
-            {
-                "role": "system",
-                "content": (
-                    "You are analyzing a reference image for a Korean marketing/promo asset. "
-                    "Return ONLY a single JSON object with keys: "
-                    "name (string — who/what is in the image), "
-                    "category (string — e.g. character, person, mascot, product), "
-                    "usp (string — one-line Korean selling hook), "
-                    "key_features (list of 3-5 short Korean strings — visual or personality traits). "
-                    "No prose, no markdown."
-                ),
-            },
             {
                 "role": "user",
                 "content": [
                     {"type": "input_image", "image_url": f"data:image/jpeg;base64,{b64}"},
                     {"type": "input_text",
-                     "text": "이 이미지를 'codex-sangpye-skill' (한국 이커머스 상세페이지 자동 생성 스킬) 홍보 자산으로 쓰기 위해 분석해줘. 위 4개 키만 채워."},
+                     "text": "이 이미지를 'codex-sangpye-skill' (한국 이커머스 상세페이지 자동 생성 스킬) 홍보 자산으로 쓰기 위해 분석해줘. 지정된 4개 키만 채운 JSON 객체로 응답. JSON 외의 텍스트는 절대 포함하지 마."},
                 ],
             },
         ],
         "text": {"format": {"type": "json_object"}},
         "stream": True,
+        "store": False,
     }
 
     print(f"[spike 01] sending payload (model={payload['model']}, image={SAMPLE.name})", file=sys.stderr)

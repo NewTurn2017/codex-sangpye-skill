@@ -11,6 +11,9 @@ build/
 *.png
 !examples/sample_product.jpg
 !examples/*.png
+!examples/demo/*.png
+!examples/demo/*.jpg
+!examples/demo/*.json
 .DS_Store
 
 # Spike outputs (kept local, not committed)

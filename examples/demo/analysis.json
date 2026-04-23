@@ -1,0 +1,294 @@
+{
+  "product_analysis": {
+    "name": "프리미엄 무선 ANC 이어폰",
+    "category": "electronics",
+    "sub_category": null,
+    "usp": "강력한 액티브 노이즈 캔슬링과 최대 30시간 배터리로 출퇴근, 업무, 운동까지 끊김 없는 몰입 사운드를 제공하는 프리미엄 무선 이어폰",
+    "key_features": [
+      "액티브 노이즈 캔슬링 ANC",
+      "최대 30시간 배터리",
+      "프리미엄 무선 연결 안정성",
+      "선명한 통화 품질",
+      "장시간 착용을 고려한 인체공학적 핏",
+      "충전 케이스 포함 올데이 사용"
+    ],
+    "target_persona": "출퇴근과 업무, 온라인 회의, 음악 감상을 모두 하나의 이어폰으로 해결하고 싶은 20~40대 테크 지향 직장인 및 크리에이터",
+    "pain_points": [
+      "지하철·카페·사무실 소음 때문에 음악과 통화에 집중하기 어렵다",
+      "배터리가 빨리 닳아 하루 중간에 충전 스트레스를 느낀다",
+      "무선 연결이 끊기거나 통화 음성이 불안정하다",
+      "오래 착용하면 귀가 답답하거나 피로하다",
+      "저가형 이어폰의 밋밋한 사운드와 부족한 차음에 만족하지 못한다"
+    ],
+    "tone": "정밀하고 자신감 있는 프리미엄 테크 무드, 차분하지만 강한 전환감",
+    "positioning_tier": "premium_indie"
+  },
+  "product_dna": {
+    "physical": {
+      "form": "좌우 독립형 인이어 무선 이어버드와 컴팩트 충전 케이스 구성, 매끈한 라운드 바디와 정밀한 마이크 홀 디테일",
+      "dimensions_hint": null,
+      "colors": [
+        "#05070D",
+        "#0A1B35",
+        "#C7CDD6",
+        "#00D7FF"
+      ],
+      "material": "무광 폴리카보네이트 바디, 실리콘 이어팁, 반사감 있는 충전 케이스 표면",
+      "texture_keywords": [
+        "matte",
+        "smooth",
+        "precision-molded",
+        "soft-touch",
+        "reflective case",
+        "micro perforation"
+      ],
+      "signature_angle": null,
+      "surface_details": [
+        "이어버드 외측의 미세 마이크 홀",
+        "실리콘 이어팁의 부드러운 곡면",
+        "충전 케이스 전면 LED 인디케이터",
+        "무광 블랙과 실버 하이라이트의 대비"
+      ]
+    },
+    "positioning": {
+      "tier": "premium_indie",
+      "price_tier_hint": null,
+      "tone": "confident precise innovative futuristic",
+      "brand_archetype": null
+    },
+    "palette": {
+      "primary": "#07162E",
+      "secondary": null,
+      "accent": null,
+      "background": "#020611",
+      "text_dark": null,
+      "text_light": null
+    },
+    "typography_hint": {
+      "headline": "modern serif",
+      "body": "clean sans",
+      "tracking": null
+    },
+    "visual_language": "딥 네이비와 블랙 스페이스를 기반으로 웜 실버 하이라이트, 시안 네온 라인, 미세한 회로 패턴과 테크 그리드가 결합된 프리미엄 전자제품 상세페이지 스타일",
+    "target_context": null
+  },
+  "master_image_index": 0,
+  "bundles": [
+    {
+      "bundle_id": "B1_HERO",
+      "size": {
+        "width": 1088,
+        "height": 1600
+      },
+      "sections": [
+        {
+          "section_number": 1,
+          "section_name": "01_hero",
+          "visual_language": "cinematic_product_portrait",
+          "y_range": [
+            0,
+            1600
+          ],
+          "korean_copy": {
+            "headline": "소음은 지우고, 몰입만 남기다",
+            "sub": "ANC · 최대 30시간 배터리 · 프리미엄 무선 사운드"
+          },
+          "image_prompt": "cinematic_product_portrait, full-bleed premium wireless earbuds and charging case as the protagonist, centered slightly lower by rule of thirds, dramatic 3/4 rim light, studio softbox lighting, cool 5600K color temperature, controlled shadows, deep navy black space background, warm silver highlights on product edges, single cyan neon accent line, subtle tech grid overlays and circuit pattern texture, reflective surface beneath case, geometric symmetrical composition, editorial Korean typography area at top with wide tracking geometric sans-serif, all caps CTA styling for small labels, product should look like premium ANC earbuds with compact case, no cartoon character, no unrelated cap or mascot, high-end electronics advertising, ultra sharp, cinematic contrast"
+        }
+      ]
+    },
+    {
+      "bundle_id": "B2_OPENING",
+      "size": {
+        "width": 1088,
+        "height": 2800
+      },
+      "sections": [
+        {
+          "section_number": 2,
+          "section_name": "02_pain",
+          "visual_language": "emotional_photography_no_product",
+          "y_range": [
+            0,
+            800
+          ],
+          "korean_copy": {
+            "headline": "하루 종일 따라오는 소음, 집중을 빼앗고 있지 않나요?"
+          },
+          "image_prompt": "emotional_photography_no_product, desaturated dark mood photograph, no product bottle and no earbuds visible, urban commuter in subway or open office overwhelmed by noise waves, blurred crowd silhouettes, smartphone notification glow, cool deep navy and black palette, subtle cyan noise wave graphics around head, studio-like controlled shadows, 5600K cool lighting, geometric tech grid overlay faint in background, Korean headline space centered, mood of frustration and fatigue, premium electronics detail page opening pain section, no mascot, no cartoon, realistic editorial photography"
+        },
+        {
+          "section_number": 3,
+          "section_name": "03_problem",
+          "visual_language": "clinical_infographic",
+          "y_range": [
+            800,
+            1600
+          ],
+          "korean_copy": {
+            "headline": "문제는 볼륨이 아니라, 제어되지 않는 주변 소음입니다"
+          },
+          "image_prompt": "clinical_infographic, clean cream-white and deep navy infographic panel, subtle geometric accents, 3 numbered diagram blocks explaining 1 external noise masks music detail 2 unstable call clarity in crowded places 3 battery anxiety interrupts daily routine, abstract ear outline, sound wave interference diagrams, battery drain icon, microphone noise icon, cyan neon accent for data lines, warm silver dividers, geometric sans Korean typography, monospace specs, precise and clinical, symmetrical layout, controlled soft shadows, electronics tech grid texture very subtle"
+        },
+        {
+          "section_number": 4,
+          "section_name": "04_story",
+          "visual_language": "editorial_split_before_after",
+          "y_range": [
+            1600,
+            2800
+          ],
+          "korean_copy": {
+            "headline": "출근길의 소음이, 나만의 사운드룸으로 바뀌는 순간"
+          },
+          "image_prompt": "editorial_split_before_after, diagonal soft divider split layout, left half cool-toned foggy before scene: commuter with tired expression surrounded by gray noise waves, right half warm radiant after scene: same person calm and focused with clean cyan sound halo, product can be subtly implied by small wireless earbuds in right ear only, premium tech editorial, deep navy background with warm silver glow on after side, geometric symmetrical composition, studio softbox plus rim light, controlled shadows, Korean headline across divider, futuristic but realistic, no cartoon mascot"
+        }
+      ]
+    },
+    {
+      "bundle_id": "B3_SOLUTION",
+      "size": {
+        "width": 1088,
+        "height": 3120
+      },
+      "sections": [
+        {
+          "section_number": 5,
+          "section_name": "05_solution",
+          "visual_language": "product_beauty_shot",
+          "y_range": [
+            0,
+            800
+          ],
+          "korean_copy": {
+            "headline": "ANC와 30시간 배터리, 하나로 완성한 올데이 몰입"
+          },
+          "image_prompt": "product_beauty_shot, studio beauty shot of premium wireless ANC earbuds and compact charging case dead-center on clean deep navy gradient background, reflective black surface, perfect lighting with large softboxes and 3/4 rim light, cool 5600K, controlled shadows, warm silver edge highlights, cyan neon ring behind product, subtle circuit pattern and tech grid overlay, minimal abstract cables as background lines, Korean headline top, spec chips reading ANC and 30H in monospace style, high-end electronics advertising, ultra clean, no mascot"
+        },
+        {
+          "section_number": 6,
+          "section_name": "06_how",
+          "visual_language": "illustrated_step_sequence",
+          "y_range": [
+            800,
+            1700
+          ],
+          "korean_copy": {
+            "headline": "꺼내고, 연결하고, 몰입하세요"
+          },
+          "image_prompt": "illustrated_step_sequence, 3 numbered steps in vertical flow optimized for mobile detail page, step 01 open charging case with cyan LED, step 02 auto wireless pairing to smartphone with geometric signal lines, step 03 activate ANC and enjoy quiet focus with sound dome around ears, each step has iconic graphic plus Korean title and short description placeholder, arrows and connector lines, deep navy background, warm silver cards, cyan neon accent, geometric sans typography wide tracking, monospace numbers, studio softbox controlled shadows, precise futuristic infographic illustration, hand-with-device shot acceptable, no cartoon mascot"
+        },
+        {
+          "section_number": 7,
+          "section_name": "07_proof",
+          "visual_language": "magazine_spread",
+          "y_range": [
+            1700,
+            3120
+          ],
+          "korean_copy": {
+            "headline": "숫자로 확인하는 프리미엄 사운드 경험"
+          },
+          "image_prompt": "magazine_spread, editorial magazine spread asymmetric grid, deep navy and black background with warm silver panels, 3 large statistic blocks interleaved with 3 realistic reviewer photos and quote cards, stats: ANC 몰입감, 최대 30시간 배터리, 선명한 통화 품질, product detail macro photos of earbud mic hole and case LED, cyan neon data lines, subtle tech grid overlays, geometric sans Korean typography with big numerals in monospace, controlled studio lighting, premium electronics review layout, polished high conversion detail page, no cartoon mascot"
+        }
+      ]
+    },
+    {
+      "bundle_id": "B4_TRUST",
+      "size": {
+        "width": 1088,
+        "height": 2800
+      },
+      "sections": [
+        {
+          "section_number": 8,
+          "section_name": "08_authority",
+          "visual_language": "portrait_with_quote",
+          "y_range": [
+            0,
+            800
+          ],
+          "korean_copy": {
+            "headline": "사운드 엔지니어의 기준으로 조율한 균형"
+          },
+          "image_prompt": "portrait_with_quote, large 3/4 crop portrait of audio engineer or founder facing slight-right in dark studio, quote box overlay bottom-right with name title credential in Korean, premium wireless earbuds and measurement microphone on desk subtly visible, deep navy black background, cool 5600K softbox lighting, rim light on profile, warm silver quote panel, cyan neon waveform behind portrait, geometric symmetrical composition, confident precise innovative mood, Korean headline top, no cartoon mascot"
+        },
+        {
+          "section_number": 9,
+          "section_name": "09_benefits",
+          "visual_language": "icon_grid_with_lifestyle",
+          "y_range": [
+            800,
+            2000
+          ],
+          "korean_copy": {
+            "headline": "일상 전체를 바꾸는 6가지 핵심 경험"
+          },
+          "image_prompt": "icon_grid_with_lifestyle, 3x2 grid of benefits with custom icons and short Korean labels: ANC 집중, 30시간 배터리, 안정적 무선 연결, 선명한 통화, 편안한 착용감, 프리미엄 사운드, below or interspersed lifestyle photo showing user wearing earbuds while working with laptop and smartphone, deep navy background, warm silver icon cards, cyan neon accents, subtle circuit patterns, controlled studio softbox and rim light, geometric sans typography, symmetrical tech layout, product is hero in lifestyle insert, no mascot"
+        },
+        {
+          "section_number": 10,
+          "section_name": "10_risk",
+          "visual_language": "document_with_seal",
+          "y_range": [
+            2000,
+            2800
+          ],
+          "korean_copy": {
+            "headline": "구매 전 걱정까지 투명하게 안내합니다"
+          },
+          "image_prompt": "document_with_seal, official certificate aesthetic on dark navy background, guarantee headline top, FAQ list below in alternating warm silver and deep navy rows, official-looking cyan seal graphic, checklist about battery use time varies by volume and ANC mode, fit depends on ear shape, charging cable compatibility, customer support guidance, subtle embossed circuit pattern, geometric sans Korean typography and monospace spec labels, precise premium electronics trust section, controlled shadows, no cartoon mascot"
+        }
+      ]
+    },
+    {
+      "bundle_id": "B5_ACTION",
+      "size": {
+        "width": 1088,
+        "height": 2400
+      },
+      "sections": [
+        {
+          "section_number": 11,
+          "section_name": "11_compare",
+          "visual_language": "split_screen_vs",
+          "y_range": [
+            0,
+            800
+          ],
+          "korean_copy": {
+            "headline": "일반 이어폰과 다른 차이는, 하루가 끝날 때 더 선명합니다"
+          },
+          "image_prompt": "split_screen_vs, 50/50 vertical split, left half without premium ANC earbuds: muted frustrated mood, low battery warning, noisy cafe waves, tangled cheap audio icons, right half with product: bright confident focused user, cyan quiet zone, full battery icon, premium wireless earbuds and case on reflective surface, deep navy black palette with warm silver right-side highlights, VS marker center, geometric tech grid overlays, Korean headline top, controlled studio lighting, high contrast ecommerce comparison section, no cartoon mascot"
+        },
+        {
+          "section_number": 12,
+          "section_name": "12_filter",
+          "visual_language": "checklist_visual",
+          "y_range": [
+            800,
+            1500
+          ],
+          "korean_copy": {
+            "headline": "이런 분께 추천합니다"
+          },
+          "image_prompt": "checklist_visual, two columns on premium dark tech background: Recommend with cyan or green checks, Not Recommend with red X, each list has 3 Korean target-fit statements, recommend: 출퇴근 소음이 스트레스인 분, 하루 종일 배터리가 필요한 분, 통화와 음악을 모두 중요하게 보는 분, not recommend: 유선 이어폰만 원하는 분, 초저가만 찾는 분, ANC 기능이 필요 없는 분, clean list design, warm silver cards, geometric sans typography, monospace labels, subtle circuit pattern, controlled shadows, symmetrical composition"
+        },
+        {
+          "section_number": 13,
+          "section_name": "13_cta",
+          "visual_language": "urgent_product_reveal",
+          "y_range": [
+            1500,
+            2400
+          ],
+          "korean_copy": {
+            "headline": "오늘의 소음을 끄고, 30시간의 몰입을 시작하세요"
+          },
+          "image_prompt": "urgent_product_reveal, final CTA section, hero-style product shot of premium wireless ANC earbuds and charging case emerging from black deep navy space, dramatic cyan neon reveal arc, rim light from 3/4 angle, studio softbox 5600K controlled shadows, reflective surface, urgency overlay with prominent strikethrough original price placeholder and bold sale price placeholder, CTA button in all caps geometric sans reading BUY NOW or 지금 구매하기, badges ANC and 30H BATTERY, subtle countdown style monospace specs, warm silver highlights, futuristic precise premium electronics mood, no mascot"
+        }
+      ]
+    }
+  ],
+  "bundle_meta_prompt": "Across all 5 bundled images, create a premium electronics Korean detail page for wireless ANC earbuds with maximum 30-hour battery. Use studio softbox lighting plus 3/4 rim light, cool 5600K, controlled shadows, geometric and symmetrical layouts, subtle tech grid overlays, circuit-pattern background texture, deep navy and black space palette, warm silver panels and a single cyan neon accent. Typography should feel like geometric sans-serif with wide tracking; use monospace for specs and large numerals. Keep props minimal: abstract cables, reflective surfaces, smartphone only when needed. Product should be the hero; avoid mascot/cartoon visuals from the reference image and do not show unrelated hats, characters, or logos. Korean copy must be clean, high-conversion, premium, precise, and futuristic."
+}

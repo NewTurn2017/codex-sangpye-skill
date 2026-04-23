@@ -18,14 +18,6 @@ Give it 1–14 product photos plus a Korean brief → get **13 section images + 
 
 > **What is "sangpye" (상폐)?** It's Korean e-commerce slang short for "상세페이지" — the tall, multi-section product detail page format used on Naver SmartStore, Coupang, Cafe24, and other Korean marketplaces.
 
-<p align="center">
-  <a href="examples/demo/combined_preview.jpg">
-    <img src="examples/demo/combined_preview.jpg" alt="Live-E2E-generated sample combined detail page (1080×12720 scaled to 540×6360)" width="360">
-  </a>
-</p>
-
-<p align="center"><sub>↑ Sample produced by the actual live integration test (1080×12720, shown at 50%).</sub></p>
-
 ---
 
 ## 🚀 Start here — Codex OAuth is the whole point
@@ -90,63 +82,6 @@ sangpye \
 ```
 
 > **Note:** the `--prompt` should generally be in Korean for best section copy quality (that's what the model's prompts are tuned for). English prompts also work, but the generated in-image copy will be Korean regardless.
-
----
-
-## 📸 Actual samples (from the live E2E test)
-
-The repo's [`examples/sample_product.jpg`](examples/sample_product.jpg) (a character reference image called "지니") was fed into `sangpye` with the prompt `"프리미엄 무선 이어폰, ANC, 30시간 배터리"`. Below are 4 representative sections from the 13 that came out:
-
-<table>
-<tr>
-<th>01 Hero — urgency headline</th>
-<th>04 Story — before/after</th>
-</tr>
-<tr>
-<td><a href="examples/demo/01_hero.png"><img src="examples/demo/01_hero.png" alt="01 Hero section" width="360"></a></td>
-<td><a href="examples/demo/04_story.png"><img src="examples/demo/04_story.png" alt="04 Story section" width="360"></a></td>
-</tr>
-<tr>
-<th>07 Proof — social proof</th>
-<th>13 CTA — final call-to-action</th>
-</tr>
-<tr>
-<td><a href="examples/demo/07_proof.png"><img src="examples/demo/07_proof.png" alt="07 Proof section" width="360"></a></td>
-<td><a href="examples/demo/13_cta.png"><img src="examples/demo/13_cta.png" alt="13 CTA section" width="360"></a></td>
-</tr>
-</table>
-
-Full combined output (all 13 sections stacked, scaled preview):
-
-<p align="center">
-  <a href="examples/demo/combined_preview.jpg">
-    <img src="examples/demo/combined_preview.jpg" alt="Full 13-section combined detail page" width="540">
-  </a>
-</p>
-
-<details>
-<summary>Excerpt of this run's <code>analysis.json</code> — AI-generated Product DNA + Korean copy + 13 section prompts (click to expand)</summary>
-
-```json
-{
-  "product_analysis": {
-    "name": "지니 무선 이어폰",
-    "category": "electronics",
-    "usp": "30시간 재생의 새로운 기준",
-    "pain_points": ["자주 끊기는 연결", "짧은 배터리", "방수 없는 이전 모델"],
-    "tone": "premium, trustworthy",
-    "positioning_tier": "premium_indie"
-  },
-  "bundles": [
-    {"bundle_id": "B1_HERO", "size": {"width": 1088, "height": 1600}, ...},
-    {"bundle_id": "B2_OPENING", "size": {"width": 1088, "height": 2800}, ...},
-    "..."
-  ]
-}
-```
-
-Full JSON: [examples/demo/analysis.json](examples/demo/analysis.json).
-</details>
 
 ---
 

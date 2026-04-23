@@ -17,14 +17,6 @@
 
 상품 사진 1~14장 + 한국어 브리프 → **13섹션 이미지 + 1080×12720 합성본** 1장. 당신의 `codex login` OAuth 세션을 그대로 사용합니다. 별도 API 키 발급/과금 불필요.
 
-<p align="center">
-  <a href="examples/demo/combined_preview.jpg">
-    <img src="examples/demo/combined_preview.jpg" alt="라이브 E2E 테스트로 실제 생성된 상세페이지 (1080×12720 → 540×6360)" width="360">
-  </a>
-</p>
-
-<p align="center"><sub>↑ 라이브 통합 테스트에서 실제 생성된 샘플 (1080×12720을 절반 크기로 프리뷰).</sub></p>
-
 ---
 
 ## 🚀 Codex OAuth로 시작하기 (가장 먼저 읽을 것)
@@ -87,63 +79,6 @@ sangpye \
 ```json
 {"job_id":"a1b2c3d4","combined":"/abs/.../combined.png","sections":["/abs/.../01_hero.png", ...],"elapsed_sec":312.5}
 ```
-
----
-
-## 📸 실제 생성 샘플 (Live E2E 결과)
-
-아래는 이 레포의 `examples/sample_product.jpg`(지니 캐릭터 레퍼런스)를 입력으로, 프롬프트 `"프리미엄 무선 이어폰, ANC, 30시간 배터리"` 를 줬을 때 **실제 통합 테스트에서 생성된 섹션들**입니다. 전체 13섹션 중 대표 4장.
-
-<table>
-<tr>
-<th>01 Hero — 긴급성 헤더</th>
-<th>04 Story — Before/After</th>
-</tr>
-<tr>
-<td><a href="examples/demo/01_hero.png"><img src="examples/demo/01_hero.png" alt="01 Hero section" width="360"></a></td>
-<td><a href="examples/demo/04_story.png"><img src="examples/demo/04_story.png" alt="04 Story section" width="360"></a></td>
-</tr>
-<tr>
-<th>07 Proof — 사회적 증거</th>
-<th>13 CTA — 최종 유도</th>
-</tr>
-<tr>
-<td><a href="examples/demo/07_proof.png"><img src="examples/demo/07_proof.png" alt="07 Proof section" width="360"></a></td>
-<td><a href="examples/demo/13_cta.png"><img src="examples/demo/13_cta.png" alt="13 CTA section" width="360"></a></td>
-</tr>
-</table>
-
-<details>
-<summary>이 실행에서 만들어진 <code>analysis.json</code> 일부 보기 (AI가 생성한 Product DNA + 한국어 카피 + 13 섹션 프롬프트 · 클릭해서 펼치기)</summary>
-
-```json
-{
-  "product_analysis": {
-    "name": "지니 무선 이어폰",
-    "category": "electronics",
-    "usp": "30시간 재생의 새로운 기준",
-    "pain_points": ["자주 끊기는 연결", "짧은 배터리", "방수 없는 이전 모델"],
-    "tone": "premium, trustworthy",
-    "positioning_tier": "premium_indie"
-  },
-  "bundles": [
-    {"bundle_id": "B1_HERO", "size": {"width": 1088, "height": 1600}, ...},
-    {"bundle_id": "B2_OPENING", "size": {"width": 1088, "height": 2800}, ...},
-    "..."
-  ]
-}
-```
-
-전체 JSON은 [examples/demo/analysis.json](examples/demo/analysis.json) 참고.
-</details>
-
-전체 13섹션 프리뷰(세로 합성):
-
-<p align="center">
-  <a href="examples/demo/combined_preview.jpg">
-    <img src="examples/demo/combined_preview.jpg" alt="Full 13-section combined detail page" width="540">
-  </a>
-</p>
 
 ---
 

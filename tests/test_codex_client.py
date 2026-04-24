@@ -50,14 +50,14 @@ def test_call_responses_aggregates_text(monkeypatch):
     monkeypatch.setattr(subprocess, "run", fake_run)
     client = CodexClient()
     out = client.call_responses(
-        model="gpt-5.4",
+        model="gpt-5.5",
         instructions="Return a JSON object with key k.",
         messages=[{"role": "user", "content": "give me json"}],
         response_format={"type": "json_object"},
     )
     assert out == '{"k": "v"}'
     p = captured["payload"]
-    assert p["model"] == "gpt-5.4"
+    assert p["model"] == "gpt-5.5"
     assert p["instructions"] == "Return a JSON object with key k."
     assert p["stream"] is True
     assert p["store"] is False
@@ -87,7 +87,7 @@ def test_generate_image_with_reference(tmp_path, monkeypatch):
     monkeypatch.setattr(subprocess, "run", fake_run)
     client = CodexClient()
     img = client.generate_image_with_reference(
-        orchestrator_model="gpt-5.4",
+        orchestrator_model="gpt-5.5",
         reference_image=ref,
         prompt="hero shot",
         size=(1088, 1600),
@@ -96,7 +96,7 @@ def test_generate_image_with_reference(tmp_path, monkeypatch):
     assert img == b"fakepngbytes"
 
     p = captured["payload"]
-    assert p["model"] == "gpt-5.4"  # orchestrator, NOT gpt-image-2
+    assert p["model"] == "gpt-5.5"  # orchestrator, NOT a direct image model
     assert "instructions" in p and len(p["instructions"]) > 0
     assert p["stream"] is True
     assert p["store"] is False
@@ -127,7 +127,7 @@ def test_generate_image_with_reference_jpeg(tmp_path, monkeypatch):
     monkeypatch.setattr(subprocess, "run", fake_run)
     client = CodexClient()
     img = client.generate_image_with_reference(
-        orchestrator_model="gpt-5.4",
+        orchestrator_model="gpt-5.5",
         reference_image=ref,
         prompt="product shot",
         size=(1080, 1350),
@@ -150,7 +150,7 @@ def test_call_responses_raises_on_subprocess_error(monkeypatch, fake_login_ok):
     monkeypatch.setattr(subprocess, "run", fake_responses)
     with pytest.raises(CodexCallError, match="some api error"):
         client.call_responses(
-            model="gpt-5.4",
+            model="gpt-5.5",
             instructions="x",
             messages=[{"role": "user", "content": "x json"}],
         )
@@ -166,7 +166,7 @@ def test_call_responses_raises_on_missing_completed(monkeypatch, fake_login_ok):
     monkeypatch.setattr(subprocess, "run", fake_responses)
     with pytest.raises(CodexCallError, match="response.completed"):
         client.call_responses(
-            model="gpt-5.4",
+            model="gpt-5.5",
             instructions="x",
             messages=[{"role": "user", "content": "x json"}],
         )
@@ -184,7 +184,7 @@ def test_generate_image_raises_on_subprocess_error(tmp_path, monkeypatch, fake_l
     monkeypatch.setattr(subprocess, "run", fake_responses)
     with pytest.raises(CodexCallError, match="rate limit"):
         client.generate_image_with_reference(
-            orchestrator_model="gpt-5.4",
+            orchestrator_model="gpt-5.5",
             reference_image=ref,
             prompt="x",
             size=(1088, 1600),
@@ -207,7 +207,7 @@ def test_generate_image_raises_on_no_image_result(tmp_path, monkeypatch, fake_lo
     monkeypatch.setattr(subprocess, "run", fake_responses)
     with pytest.raises(CodexCallError, match="image_generation_call"):
         client.generate_image_with_reference(
-            orchestrator_model="gpt-5.4",
+            orchestrator_model="gpt-5.5",
             reference_image=ref,
             prompt="x",
             size=(1088, 1600),
@@ -228,7 +228,7 @@ def test_generate_image_no_extension_defaults_to_png(tmp_path, monkeypatch, fake
     client = CodexClient()
     monkeypatch.setattr(subprocess, "run", fake_responses)
     client.generate_image_with_reference(
-        orchestrator_model="gpt-5.4",
+        orchestrator_model="gpt-5.5",
         reference_image=ref,
         prompt="x",
         size=(1088, 1600),

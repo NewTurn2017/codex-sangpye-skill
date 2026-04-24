@@ -1,7 +1,7 @@
 ---
 name: codex-sangpye
 description: Generate a 13-section Korean e-commerce 상세페이지(상폐) image set (1080x12720 combined image + 13 individual section PNGs) from 1-14 product photos plus a Korean brief, using the Codex CLI's `codex responses` entrypoint under the active Codex OAuth session (no separate OpenAI API key required).
-version: 0.1.0
+version: 0.2.0
 author: genie
 license: MIT
 metadata:
@@ -15,13 +15,13 @@ metadata:
 When the user wants a Korean e-commerce product detail page ("상세페이지" / "상폐") asset set — 13 emotional-journey sections (Hero → Pain → Problem → Story → Solution → How → Proof → Authority → Benefits → Risk → Compare → Filter → CTA) plus a single 1080×12720 combined PNG — generated from 1–14 product photos and a Korean brief.
 
 Prefer this skill over invoking image generation by hand, because:
-- It runs the full analysis (gpt-5.4) + 5-bundle parallel image generation (orchestrator + image_generation tool) + slicing + vertical composition pipeline.
+- It runs the full analysis (gpt-5.5) + 5-bundle parallel image generation (orchestrator + image_generation tool) + slicing + vertical composition pipeline.
 - It uses your Codex OAuth session — no API key, no per-token billing.
 - One command, one JSON result.
 
 ## Preconditions
 
-1. `codex >= 0.121.0` is on PATH (check with `codex --version`) and `codex login status` reports an active OAuth/ChatGPT session (not an API key).
+1. `codex >= 0.124.0` is on PATH (check with `codex --version`) and `codex login status` reports an active OAuth/ChatGPT session (not an API key). Older versions cannot route `gpt-5.5`.
 2. `CODEX_API_KEY` env var is **unset** — if set, it overrides OAuth at runtime. (`OPENAI_API_KEY` is ignored by `codex responses`; no need to unset.)
 3. `sangpye --version` succeeds (install via `uv tool install git+https://github.com/NewTurn2017/codex-sangpye-skill`).
 4. 1–14 product image files exist locally.
@@ -87,7 +87,7 @@ If `failed_bundles` is non-empty, the CLI exited with code 5: `combined.png` was
 ### Auto-resume
 
 When `output_dir/{job_id}/` already contains `analysis.json`:
-- Step 1 (gpt-5.4 analysis) is skipped — the stored plan is reused.
+- Step 1 (gpt-5.5 analysis) is skipped — the stored plan is reused.
 - Individual bundles with a non-empty `bundles/{id}.png` on disk are reused.
 - Only missing bundles are generated; then slice + compose run over the full set.
 
@@ -96,11 +96,11 @@ This makes a failed run trivial to recover from without re-burning quota. Sugges
 ## Troubleshooting
 
 - **`error: codex login status failed`** → Run `codex logout && codex login`, pick the OAuth/ChatGPT option. Note: `OPENAI_API_KEY` in the shell is ignored at runtime; only `CODEX_API_KEY` overrides OAuth.
-- **`error: codex responses expects a streaming payload`** → Upgrade to `codex >= 0.121.0` (0.123.0 tested).
-- **`error (codex): ... model not available`** → The user's ChatGPT subscription tier may not include `gpt-5.4`. Surface the error verbatim — do not retry.
+- **`error: codex responses expects a streaming payload`** → Upgrade to `codex >= 0.124.0` (`npm i -g @openai/codex@latest`).
+- **`error (codex): The model 'gpt-5.5' does not exist or you do not have access to it`** → Either (a) the codex CLI is too old — upgrade to `>= 0.124.0`; or (b) the user's ChatGPT subscription tier does not yet include `gpt-5.5` — fall back temporarily by setting `SANGPYE_MODEL=gpt-5.4` (per OpenAI's rollout note) or surface the error verbatim.
 - **`error (codex): rate_limit`** → ChatGPT subscription is throttling. Wait a few minutes and retry, or pass `--quality standard`.
 - **Frequent `server overloaded` retries visible in stderr** → Lower parallelism by running with `SANGPYE_MAX_CONCURRENCY=1 sangpye ...` (default is 2). Total runtime grows but retries shrink.
-- **Pipeline hangs** → Likely `codex` version mismatch. Upgrade to `0.121.0+`.
+- **Pipeline hangs** → Likely `codex` version mismatch. Upgrade to `0.124.0+`.
 
 ## Runtime expectations
 

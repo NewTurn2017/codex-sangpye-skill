@@ -69,7 +69,7 @@ class PipelineService:
 
         # 1) Analyze — or RESUME if analysis.json already exists in this output_dir.
         # The user can retry a failed run by re-invoking with the same
-        # --output and --job-id; we skip the expensive gpt-5.4 call and reuse
+        # --output and --job-id; we skip the expensive gpt-5.5 call and reuse
         # the stored plan.
         plan_path = output_dir / "analysis.json"
         if plan_path.exists() and plan_path.stat().st_size > 0:
@@ -77,7 +77,7 @@ class PipelineService:
             logger.info("[%s] resume from existing analysis.json", job_id)
             plan = AnalysisPlan.model_validate_json(plan_path.read_text(encoding="utf-8"))
         else:
-            emit_status("analyzing", "Codex(gpt-5.4) 분석 중: 제품 DNA + 5 묶음 스펙 생성")
+            emit_status("analyzing", "Codex(gpt-5.5) 분석 중: 제품 DNA + 5 묶음 스펙 생성")
             logger.info("[%s] analyze", job_id)
             plan = self.analysis.build_plan(images=user_images, prompt=prompt, category=category)
             # Persist eagerly so a later image-gen failure still preserves the plan.

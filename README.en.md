@@ -27,7 +27,7 @@ The one idea that makes this skill interesting: **it runs on your ChatGPT Plus/P
 Internally, every model call tunnels through `codex responses` and inherits your active OAuth session. So:
 
 - No API key to create or store · No separate billing · Runs inside your ChatGPT quota
-- `gpt-5.4` multimodal analysis + 5 parallel `image_generation` tool calls → 13 sections auto-assembled
+- `gpt-5.5` multimodal analysis + 5 parallel `image_generation` tool calls → 13 sections auto-assembled (set `SANGPYE_MODEL=gpt-5.4` to fall back during the rollout)
 - Typical runtime: **5–10 minutes** (as fast as ~5 min when ChatGPT is idle, up to ~15 min under load). The CLI auto-retries `server overloaded` / `rate_limit` transparently.
 
 ### Prerequisites (3 things)
@@ -189,7 +189,7 @@ sangpye \
 ### Output contract
 
 - **stdout**: on success, a single JSON line — `job_id`, `output_dir`, `combined`, `sections[13]`, `plan_path`, `elapsed_sec`
-- **stderr**: human-readable progress (`[analyzing] Codex(gpt-5.4) 분석 중...`, `[generating_images] ...`, etc.)
+- **stderr**: human-readable progress (`[analyzing] Codex(gpt-5.5) 분석 중...`, `[generating_images] ...`, etc.)
 
 ### Exit codes
 
@@ -214,7 +214,7 @@ sangpye \
   --job-id <same as previous run>    # stderr shows the id on failure
 ```
 
-- `output_dir/{job_id}/analysis.json` exists → **Step 1 (gpt-5.4 analysis) is auto-skipped** — saves quota + ~30s
+- `output_dir/{job_id}/analysis.json` exists → **Step 1 (gpt-5.5 analysis) is auto-skipped** — saves quota + ~30s
 - `bundles/{bundle_id}.png` already present → **that bundle is NOT re-generated**. With 4 of 5 already complete, only the failed one retries (~2-3 min)
 - `sections/` + `combined.png` are always rebuilt (their cost is negligible)
 
@@ -227,7 +227,7 @@ Net UX: "re-run = pick up where it left off, retry only what failed."
 ```
 Input: 1–14 images + Korean prompt
    ↓
-[1] gpt-5.4 analysis (multimodal)
+[1] gpt-5.5 analysis (multimodal)
    → ProductDNA + 5 Bundle specs + 13 Korean copies
    ↓
 [2] image_generation tool × 5 calls (concurrency = 3)
@@ -266,15 +266,15 @@ This skill is an **extract** of the core pipeline from a private FastAPI + Celer
 | Symptom | Fix |
 |---|---|
 | `codex: command not found` | `npm install -g @openai/codex` |
-| `codex --version` < 0.121.0 | `npm install -g @openai/codex@latest` |
+| `codex --version` < 0.124.0 | `npm install -g @openai/codex@latest` (required to route gpt-5.5) |
 | `error: codex login status failed` | `codex login` → "Sign in with ChatGPT" |
 | OAuth doesn't seem to be used | `unset CODEX_API_KEY` (or `Remove-Item Env:CODEX_API_KEY` on Windows) |
 | `error: codex responses expects a streaming payload` | Upgrade codex |
-| `error (codex): ... model not available` | Your ChatGPT tier may not expose `gpt-5.4` — upgrade subscription |
+| `The model 'gpt-5.5' does not exist or you do not have access to it` | (1) `codex --version` < 0.124.0 — upgrade; or (2) your ChatGPT tier hasn't received 5.5 yet — fall back with `SANGPYE_MODEL=gpt-5.4 sangpye ...` |
 | `error (codex): rate_limit` | ChatGPT quota throttle — wait, or use `--quality standard` |
 | Runs take >10 min | Retries absorbing overload — let it finish. Expected under ChatGPT load |
 | Frequent `server overloaded` | Lower concurrency: `SANGPYE_MAX_CONCURRENCY=1` (default is 2). Longer total, fewer retries |
-| Pipeline hangs | Check `codex --version` ≥ 0.121.0; older versions use a different event schema |
+| Pipeline hangs | Check `codex --version` ≥ 0.124.0; older versions use a different event schema |
 | Run crashed mid-way | `output_dir/{job_id}/analysis.json` was saved right after Step 1 — you can reuse it manually |
 
 ---

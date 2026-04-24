@@ -1,5 +1,7 @@
 # codex-sangpye-skill Implementation Plan
 
+> **Model upgrade note (2026-04-24):** all `gpt-5.4` references in this plan describe the original Phase 0 validation. The shipped skill now defaults to `gpt-5.5` (released 2026-04-23) via the same `codex responses` payload shape — re-validated on `codex-cli >= 0.124.0`. Set `SANGPYE_MODEL=gpt-5.4` to fall back during the rollout.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 ---

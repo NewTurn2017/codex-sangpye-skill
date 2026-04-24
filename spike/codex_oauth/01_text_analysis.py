@@ -1,5 +1,6 @@
 """Spike 01 — verify `codex responses` can carry multimodal text input
-and return a JSON-formatted response (json_object format) for gpt-5.4.
+and return a JSON-formatted response (json_object format) for gpt-5.5
+(originally validated on gpt-5.4 in Phase 0; same payload shape).
 
 Verified against openai/codex @ rust-v0.123.0:
 - Stdin = raw Responses API JSON (passthrough, `stream: true` mandatory).
@@ -26,7 +27,7 @@ def main() -> int:
 
     b64 = base64.b64encode(SAMPLE.read_bytes()).decode()
     payload = {
-        "model": "gpt-5.4",
+        "model": "gpt-5.5",
         "instructions": (
             "You are analyzing a reference image for a Korean marketing/promo asset. "
             "Return ONLY a single JSON object with keys: "

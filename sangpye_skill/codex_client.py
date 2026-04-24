@@ -121,7 +121,7 @@ class CodexClient:
     def generate_image_with_reference(
         self,
         *,
-        orchestrator_model: str,    # MUST be a chat model (e.g. 'gpt-5.4'), NOT gpt-image-2
+        orchestrator_model: str,    # MUST be a chat model (e.g. 'gpt-5.5'), NOT gpt-image-2
         reference_image: Path,
         prompt: str,
         size: tuple[int, int],
@@ -131,7 +131,7 @@ class CodexClient:
 
         Phase 0 spike established that `model="gpt-image-2"` is rejected by
         ChatGPT OAuth ("not supported"). The working pattern is an orchestrator
-        chat model (e.g. gpt-5.4) that invokes the image_generation tool:
+        chat model (e.g. gpt-5.5) that invokes the image_generation tool:
         the chat model passes the reference image and prompt through to the
         tool, and the tool emits the PNG in a `response.output_item.done` event.
 

@@ -1,5 +1,5 @@
 # sangpye_skill/analysis.py
-"""Analysis service — single gpt-5.4 call producing ProductDNA + 5 bundle specs."""
+"""Analysis service — single gpt-5.5 call producing ProductDNA + 5 bundle specs."""
 from __future__ import annotations
 from typing import Literal
 from pydantic import BaseModel, Field
@@ -54,6 +54,7 @@ class AnalysisPlan(BaseModel):
 import base64
 import json
 import logging
+import os
 from pathlib import Path
 from sangpye_skill.codex_client import CodexClient
 from sangpye_skill.section_language import SECTION_LANGUAGES
@@ -61,7 +62,9 @@ from sangpye_skill.category_briefs import get_brief, CATEGORY_BRIEFS
 
 logger = logging.getLogger(__name__)
 
-MODEL = "gpt-5.4"
+# Default to gpt-5.5 (released 2026-04-23). Set SANGPYE_MODEL=gpt-5.4 to fall
+# back during the rollout if the user's ChatGPT tier doesn't yet expose 5.5.
+MODEL = os.getenv("SANGPYE_MODEL", "gpt-5.5")
 MAX_RETRIES = 2
 
 # Concrete JSON output template — the model MUST mirror this exact shape.

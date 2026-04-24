@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 # ("not supported when using Codex with a ChatGPT account").
 # The image_generation tool must be invoked via a chat orchestrator model.
 # codex_client.generate_image_with_reference hides the tool plumbing.
-ORCHESTRATOR_MODEL = "gpt-5.4"
+# Default to gpt-5.5 (released 2026-04-23). Set SANGPYE_MODEL=gpt-5.4 to fall
+# back during the rollout if the user's ChatGPT tier doesn't yet expose 5.5.
+ORCHESTRATOR_MODEL = os.getenv("SANGPYE_MODEL", "gpt-5.5")
 
 # Concurrency — OAuth throttles parallel image_generation calls. The Phase 0
 # spike already saw 2 `response.rate_limits` events per call at concurrency 3,

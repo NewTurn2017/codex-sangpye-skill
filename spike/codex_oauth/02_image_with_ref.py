@@ -42,7 +42,7 @@ def main() -> int:
     # ChatGPT OAuth refuses direct gpt-image-2 calls ("model is not supported"), but
     # the image_generation tool invoked by a chat model is permitted.
     payload = {
-        "model": "gpt-5.4",
+        "model": "gpt-5.5",
         "instructions": (
             "You are a Korean e-commerce art director. Produce a single vertical 1088x1600 "
             "promo hero image. Always preserve the identity of the referenced character "

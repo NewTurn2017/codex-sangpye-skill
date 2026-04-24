@@ -5,6 +5,8 @@
 **Status**: Approved — ready for implementation plan
 **Reference skill**: https://github.com/Gyu-bot/codex-image-generation-skill
 
+> **Model upgrade note (2026-04-24):** all `gpt-5.4` references in this spec describe the original Phase 0 validation. The shipped skill now defaults to `gpt-5.5` (released 2026-04-23) via the same `codex responses` payload shape — re-validated end-to-end on `codex-cli >= 0.124.0`. Set `SANGPYE_MODEL=gpt-5.4` to fall back during the rollout.
+
 ---
 
 ## 1. Goal

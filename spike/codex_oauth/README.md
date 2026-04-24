@@ -1,5 +1,7 @@
 # Codex OAuth verification spike
 
+> **Model upgrade note (2026-04-24):** Phase 0 was originally validated on `gpt-5.4`. After OpenAI's GPT-5.5 release on 2026-04-23 we re-validated the same `codex responses` payload shape (text+JSON, orchestrator+image_generation tool, parallel calls) on `gpt-5.5` against `codex-cli >= 0.124.0` — no schema change. The spike scripts in this folder were updated to `model: "gpt-5.5"`; the analysis below still describes the original Phase 0 findings on 5.4 (every restriction it documents still holds on 5.5).
+
 Goal: prove `codex responses` (OAuth, ChatGPT subscription) can carry the three call types the `codex-sangpye-skill` pipeline needs:
 
 1. **Multimodal text → JSON** — gpt-5.4 with an image input + `text.format = json_object`

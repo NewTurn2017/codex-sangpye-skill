@@ -26,7 +26,7 @@
 내부적으로 `codex responses` 서브커맨드를 통해 당신의 OAuth 세션을 재사용합니다. 결과적으로:
 
 - 키 관리 안 함 · 별도 billing 없음 · ChatGPT 쿼터 안에서 돌아감
-- `gpt-5.4` 멀티모달 분석 + `image_generation` 툴 5회 병렬 호출 → 13섹션 자동 생성
+- `gpt-5.5` 멀티모달 분석 + `image_generation` 툴 5회 병렬 호출 → 13섹션 자동 생성 (rollout 중인 ChatGPT 티어라면 `SANGPYE_MODEL=gpt-5.4`로 폴백)
 - 보통 **5~10분** 소요 (한가할 땐 ~5분, ChatGPT 서버가 혼잡하면 최대 15분). 재시도 로직이 `server overloaded`/`rate_limit`를 자동으로 흡수합니다.
 
 ### 필수 사전 준비 (3가지)
@@ -186,7 +186,7 @@ sangpye \
 ### 출력
 
 - **stdout**: 성공 시 한 줄 JSON — `job_id`, `output_dir`, `combined`, `sections[13]`, `plan_path`, `elapsed_sec`
-- **stderr**: 사람용 진행 로그 (`[analyzing] Codex(gpt-5.4) 분석 중...`, `[generating_images] 이미지 생성 중: 5개 묶음 병렬 생성`, ...)
+- **stderr**: 사람용 진행 로그 (`[analyzing] Codex(gpt-5.5) 분석 중...`, `[generating_images] 이미지 생성 중: 5개 묶음 병렬 생성`, ...)
 
 ### 종료 코드
 
@@ -211,7 +211,7 @@ sangpye \
   --job-id <이전과 동일>         # 실패 시 stderr에 표시됨
 ```
 
-- `output_dir/{job_id}/analysis.json`이 있으면 **gpt-5.4 분석 단계(Step 1) 자동 스킵** — 쿼터 절약 + ~30초 단축
+- `output_dir/{job_id}/analysis.json`이 있으면 **gpt-5.5 분석 단계(Step 1) 자동 스킵** — 쿼터 절약 + ~30초 단축
 - `bundles/{bundle_id}.png`가 이미 있는 번들은 **재생성 안 함** — 이미 성공한 4개 번들이 있으면 실패한 1개만 재시도 (~2~3분)
 - `sections/` + `combined.png`는 항상 다시 만듦 (비용 무시 가능한 수준)
 
@@ -224,7 +224,7 @@ sangpye \
 ```
 Input: 1~14장 이미지 + 한국어 프롬프트
    ↓
-[1] gpt-5.4 분석 (멀티모달)
+[1] gpt-5.5 분석 (멀티모달)
    → ProductDNA + 5 Bundle specs + 13 섹션 한국어 카피
    ↓
 [2] image_generation 툴 × 5회 (동시 3개 세마포어)
@@ -262,15 +262,15 @@ Input: 1~14장 이미지 + 한국어 프롬프트
 | 증상 | 해결 |
 |---|---|
 | `codex: command not found` | `npm install -g @openai/codex` |
-| `codex --version` < 0.121.0 | `npm install -g @openai/codex@latest` |
+| `codex --version` < 0.124.0 | `npm install -g @openai/codex@latest` (gpt-5.5 라우팅에 필요) |
 | `error: codex login status failed` | `codex login` → "Sign in with ChatGPT" |
 | OAuth가 아닌 API key로 가는 것 같다 | `unset CODEX_API_KEY` |
 | `error: codex responses expects a streaming payload` | codex 버전 낮음 → 업그레이드 |
-| `error (codex): ... model not available` | ChatGPT 구독 티어에 `gpt-5.4` 없음 — 업그레이드 필요 |
+| `The model 'gpt-5.5' does not exist or you do not have access to it` | (1) `codex --version` < 0.124.0 — 업그레이드 / (2) ChatGPT 티어에 5.5 미반영 — `SANGPYE_MODEL=gpt-5.4 sangpye ...`로 폴백 |
 | `error (codex): rate_limit` | ChatGPT 쿼터 throttle — 잠시 대기 or `--quality standard` |
 | 10분+ 소요 | 재시도 흡수 중 — 그대로 두기. OAuth 혼잡 시 정상 범위 |
 | `server overloaded`가 자주 뜬다 | `SANGPYE_MAX_CONCURRENCY=1` 환경변수로 병렬도 1로 내리기 (기본 2). 총 시간은 늘어나지만 재시도는 줄어듦 |
-| 파이프라인 hang | `codex --version` 확인, 0.121.0 이상이어야 함 |
+| 파이프라인 hang | `codex --version` 확인, 0.124.0 이상이어야 함 |
 | 생성 도중 중단됐는데 다시 돌리긴 아깝다 | `output_dir/{job_id}/analysis.json`이 이미 저장돼 있으니 `sangpye` 인자만 바꿔 재사용 가능 |
 
 ---

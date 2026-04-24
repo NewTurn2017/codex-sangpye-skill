@@ -41,7 +41,7 @@ def build_payload(b64: str, label: str) -> dict:
     # Orchestrator model + image_generation tool (same pattern as Spike 02).
     # ChatGPT OAuth rejects direct gpt-image-2 calls; must go through a chat model.
     return {
-        "model": "gpt-5.4",
+        "model": "gpt-5.5",
         "instructions": (
             "You are a Korean e-commerce art director. Produce a single vertical 1088x1600 "
             "promo image. Always preserve the identity of the referenced '지니' character "

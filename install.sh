@@ -5,7 +5,7 @@
 #   curl -fsSL https://raw.githubusercontent.com/NewTurn2017/codex-sangpye-skill/main/install.sh | bash
 #
 # What it does:
-#   1. Verifies prerequisites (uv, codex >= 0.121.0, codex OAuth login)
+#   1. Verifies prerequisites (uv, and ChatGPT OAuth tokens in ~/.codex/auth.json)
 #   2. Installs the `sangpye` CLI globally via `uv tool install`
 #   3. Drops SKILL.md into ~/.claude/skills/codex-sangpye/ for Claude Code skill discovery
 #   4. Runs a smoke check
@@ -32,35 +32,21 @@ if ! command -v uv >/dev/null 2>&1; then
 fi
 ok "uv $(uv --version | awk '{print $2}')"
 
-# codex >= 0.121.0
-if ! command -v codex >/dev/null 2>&1; then
-  fail "codex CLI not found. Install from https://github.com/openai/codex (npm install -g @openai/codex)"
+# ChatGPT OAuth tokens (sangpye reads them directly — no codex binary needed at runtime)
+AUTH_FILE="${CODEX_HOME:-$HOME/.codex}/auth.json"
+if [ ! -f "$AUTH_FILE" ]; then
+  fail "$AUTH_FILE not found. Run: codex login  (pick the ChatGPT/OAuth option)"
 fi
-CODEX_VER=$(codex --version 2>/dev/null | awk '{print $2}' | head -1)
-if [ -z "$CODEX_VER" ]; then
-  fail "could not parse codex version"
+if ! python3 -c "
+import json, sys
+d = json.load(open('$AUTH_FILE'))
+t = d.get('tokens') or {}
+if not t.get('access_token') or not t.get('account_id'):
+    sys.exit('auth.json has no ChatGPT OAuth tokens (auth_mode={!r}). Run: codex logout && codex login (choose ChatGPT).'.format(d.get('auth_mode')))
+" 2>/dev/null; then
+  fail "$AUTH_FILE has no ChatGPT OAuth tokens. Run: codex logout && codex login  (choose ChatGPT)"
 fi
-# Basic version gate — require major 0 with minor >= 121, or anything >= 1.0
-if [[ "$CODEX_VER" =~ ^0\.([0-9]+)\. ]]; then
-  MINOR="${BASH_REMATCH[1]}"
-  if [ "$MINOR" -lt 121 ]; then
-    fail "codex $CODEX_VER is too old. Upgrade: npm install -g @openai/codex@latest  (need >= 0.121.0)"
-  fi
-fi
-ok "codex $CODEX_VER"
-
-# codex login status (OAuth/ChatGPT required)
-if ! codex login status >/dev/null 2>&1; then
-  fail "codex is not logged in. Run: codex login  (pick ChatGPT/OAuth option)"
-fi
-LOGIN_STATUS=$(codex login status 2>&1 | head -1)
-ok "codex login: $LOGIN_STATUS"
-
-# CODEX_API_KEY should be unset (it overrides OAuth)
-if [ -n "${CODEX_API_KEY:-}" ]; then
-  warn "CODEX_API_KEY is set in your environment — this will override OAuth and may bill against an API key."
-  warn "Unset it with: unset CODEX_API_KEY"
-fi
+ok "ChatGPT OAuth tokens present in $AUTH_FILE"
 
 step "2/4  Install sangpye CLI (uv tool install)"
 uv tool install --reinstall "git+$REPO_URL" >/dev/null 2>&1 || uv tool install "git+$REPO_URL"

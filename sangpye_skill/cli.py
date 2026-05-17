@@ -45,10 +45,6 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--quality", choices=["standard", "high"], default="high")
     p.add_argument("--job-id", default=None, help="Override the auto-generated 8-char job id.")
-    p.add_argument(
-        "--codex-bin", default="codex",
-        help="Path to the codex CLI binary (default: codex on PATH).",
-    )
     return p
 
 
@@ -88,9 +84,9 @@ def main() -> int:
         _stderr(f"error (filesystem): {e}")
         return EXIT_FS
 
-    _stderr("codex login status: checking...")
+    _stderr("Codex OAuth: loading ~/.codex/auth.json...")
     try:
-        pipeline = PipelineService(quality=args.quality, codex_bin=args.codex_bin)
+        pipeline = PipelineService(quality=args.quality)
     except CodexAuthError as e:
         _stderr(f"error: {e}")
         return EXIT_AUTH

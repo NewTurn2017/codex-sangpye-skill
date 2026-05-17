@@ -23,27 +23,22 @@
 
 이 스킬의 핵심 아이디어: **OpenAI API 키 없이, ChatGPT 구독(Plus/Pro)만으로 돌아간다.**
 
-내부적으로 `codex responses` 서브커맨드를 통해 당신의 OAuth 세션을 재사용합니다. 결과적으로:
+이전에는 `codex responses` 서브커맨드를 통해 OAuth 세션을 재사용했지만, **Codex CLI 0.130에서 해당 서브커맨드가 제거**됐습니다. v0.3.0부터는 `codex login`이 저장한 토큰(`~/.codex/auth.json`)을 직접 읽어 ChatGPT 백엔드(`chatgpt.com/backend-api/codex/responses`)로 바로 HTTPS POST 합니다. 결과적으로:
 
 - 키 관리 안 함 · 별도 billing 없음 · ChatGPT 쿼터 안에서 돌아감
+- `codex` 바이너리 버전 의존성 없음 (auth.json만 살아있으면 됨)
 - `gpt-5.5` 멀티모달 분석 + `image_generation` 툴 5회 병렬 호출 → 13섹션 자동 생성 (rollout 중인 ChatGPT 티어라면 `SANGPYE_MODEL=gpt-5.4`로 폴백)
 - 보통 **5~10분** 소요 (한가할 땐 ~5분, ChatGPT 서버가 혼잡하면 최대 15분). 재시도 로직이 `server overloaded`/`rate_limit`를 자동으로 흡수합니다.
 
-### 필수 사전 준비 (3가지)
+### 필수 사전 준비 (단 1가지)
 
 ```bash
-# 1. codex CLI 최신 버전 (>= 0.121.0)
-npm install -g @openai/codex@latest
-codex --version   # codex-cli 0.123.0 또는 이상
-
-# 2. ChatGPT OAuth 로그인 (API 키 아님!)
+# ChatGPT OAuth로 한 번만 로그인하면 끝 (API 키 아님!)
 codex login       # 프롬프트에서 "Sign in with ChatGPT" 선택
-
-# 3. CODEX_API_KEY 미설정 (OAuth를 덮어씀)
-echo "${CODEX_API_KEY:-<unset>}"     # <unset> 이어야 함
+# → ~/.codex/auth.json에 access_token + account_id 저장됨 (유효기간 ~10일)
 ```
 
-> `OPENAI_API_KEY`는 `codex responses`가 런타임에서 **무시**합니다. 쉘에 있어도 상관없음. 오직 `CODEX_API_KEY`만 OAuth를 덮어씁니다.
+> v0.3.0+는 `codex` 바이너리를 호출하지 않습니다. 토큰이 만료되면 `codex login`을 다시 실행해 갱신하세요. `OPENAI_API_KEY`/`CODEX_API_KEY` 환경 변수는 이 스킬이 무시합니다 — 오직 `auth.json`의 OAuth 토큰만 사용합니다.
 
 ### 한 방 설치
 
@@ -58,7 +53,7 @@ iwr -useb https://raw.githubusercontent.com/NewTurn2017/codex-sangpye-skill/main
 ```
 
 스크립트가 하는 일:
-1. `uv`, `codex >= 0.121.0`, OAuth 로그인 상태 검증
+1. `uv`와 `~/.codex/auth.json`의 ChatGPT OAuth 토큰 존재 확인
 2. `uv tool install` 로 `sangpye` CLI 글로벌 설치
 3. `SKILL.md`를 `~/.claude/skills/codex-sangpye/`에 드롭 (Claude Code 스킬 자동 인식)
 4. smoke check
@@ -181,7 +176,6 @@ sangpye \
 | `--output DIR` | | `./sangpye-output` | 출력 디렉토리 (하위에 `{job_id}/` 생성). |
 | `--quality` | | `high` | `standard` \| `high`. 저티어 구독에서 rate limit 만나면 `standard`로. |
 | `--job-id ID` | | 랜덤 8자 hex | 수동 지정 시 디렉토리명이 됨. |
-| `--codex-bin PATH` | | `codex` | `codex` 바이너리 경로 (PATH에 없을 때). |
 
 ### 출력
 
@@ -238,7 +232,7 @@ Input: 1~14장 이미지 + 한국어 프롬프트
 ```
 
 - Celery/Redis/Docker 전혀 없음. 로컬 `sangpye` 프로세스 하나가 동기로 돌고 끝.
-- `codex responses` 서브프로세스 호출을 `codex_client.py`가 감싸고 있어, 나중에 private HTTPS 전송으로 교체하고 싶으면 한 파일만 바꾸면 됨.
+- 모든 모델 호출은 `codex_client.py`가 `~/.codex/auth.json`의 OAuth 토큰으로 `chatgpt.com/backend-api/codex/responses`에 직접 SSE POST. `codex` 바이너리는 호출하지 않습니다 (Codex CLI 0.130에서 `codex responses` 서브커맨드가 제거됨).
 
 ---
 
@@ -248,7 +242,7 @@ Input: 1~14장 이미지 + 한국어 프롬프트
 
 | 원본 | 여기 | 변경 |
 |---|---|---|
-| `app/services/openai_client.py` | `sangpye_skill/codex_client.py` | 재작성: `codex responses` 서브프로세스 래퍼 |
+| `app/services/openai_client.py` | `sangpye_skill/codex_client.py` | 재작성: `~/.codex/auth.json` OAuth 토큰으로 ChatGPT 백엔드(`chatgpt.com/backend-api/codex/responses`)에 직접 SSE POST (v0.3.0+, codex 0.130 호환) |
 | `app/services/pipeline.py` | `sangpye_skill/pipeline.py` | 동기 버전. Celery/Redis/cancel hook 제거 |
 | `app/services/analysis.py` | `sangpye_skill/analysis.py` | 같은 프롬프트/스키마. `codex_client.call_responses` 사용 |
 | `app/services/image_generator_v3.py` | `sangpye_skill/image_generator.py` | 같은 재시도/동시성. `codex_client.generate_image_with_reference` 사용 |
@@ -261,17 +255,16 @@ Input: 1~14장 이미지 + 한국어 프롬프트
 
 | 증상 | 해결 |
 |---|---|
-| `codex: command not found` | `npm install -g @openai/codex` |
-| `codex --version` < 0.124.0 | `npm install -g @openai/codex@latest` (gpt-5.5 라우팅에 필요) |
-| `error: codex login status failed` | `codex login` → "Sign in with ChatGPT" |
-| OAuth가 아닌 API key로 가는 것 같다 | `unset CODEX_API_KEY` |
-| `error: codex responses expects a streaming payload` | codex 버전 낮음 → 업그레이드 |
-| `The model 'gpt-5.5' does not exist or you do not have access to it` | (1) `codex --version` < 0.124.0 — 업그레이드 / (2) ChatGPT 티어에 5.5 미반영 — `SANGPYE_MODEL=gpt-5.4 sangpye ...`로 폴백 |
+| `error: ~/.codex/auth.json not found` | `codex login` → "Sign in with ChatGPT" 한 번 실행 |
+| `error: ~/.codex/auth.json has no ChatGPT OAuth tokens` | API 키 모드로 로그인된 상태 → `codex logout && codex login`, ChatGPT 선택 |
+| `error: ChatGPT OAuth rejected the request (HTTP 401)` | access_token 만료(보통 10일) → `codex login`으로 갱신 |
+| `responses HTTP 500` / `503` | ChatGPT 백엔드 일시 장애 — 잠시 후 재시도 |
+| `responses network error` | 로컬 네트워크/방화벽 문제로 `chatgpt.com` 접근 불가 |
+| `The model 'gpt-5.5' does not exist or you do not have access to it` | ChatGPT 티어에 5.5 미반영 — `SANGPYE_MODEL=gpt-5.4 sangpye ...`로 폴백 |
 | `error (codex): rate_limit` | ChatGPT 쿼터 throttle — 잠시 대기 or `--quality standard` |
 | 10분+ 소요 | 재시도 흡수 중 — 그대로 두기. OAuth 혼잡 시 정상 범위 |
 | `server overloaded`가 자주 뜬다 | `SANGPYE_MAX_CONCURRENCY=1` 환경변수로 병렬도 1로 내리기 (기본 2). 총 시간은 늘어나지만 재시도는 줄어듦 |
-| 파이프라인 hang | `codex --version` 확인, 0.124.0 이상이어야 함 |
-| 생성 도중 중단됐는데 다시 돌리긴 아깝다 | `output_dir/{job_id}/analysis.json`이 이미 저장돼 있으니 `sangpye` 인자만 바꿔 재사용 가능 |
+| 생성 도중 중단됐는데 다시 돌리긴 아깝다 | `output_dir/{job_id}/analysis.json`이 이미 저장돼 있으니 같은 `--output --job-id`로 재실행 (자동 재개) |
 
 ---
 

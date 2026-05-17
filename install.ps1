@@ -4,7 +4,7 @@
 #   iwr -useb https://raw.githubusercontent.com/NewTurn2017/codex-sangpye-skill/main/install.ps1 | iex
 #
 # What it does:
-#   1. Verifies prerequisites (uv, codex >= 0.121.0, codex OAuth login)
+#   1. Verifies prerequisites (uv, and ChatGPT OAuth tokens in ~/.codex/auth.json)
 #   2. Installs the `sangpye` CLI globally via `uv tool install`
 #   3. Drops SKILL.md into %USERPROFILE%\.claude\skills\codex-sangpye\ for Claude Code skill discovery
 #   4. Runs a smoke check
@@ -30,35 +30,20 @@ if (-not $uvVer) {
 }
 Ok "uv $uvVer"
 
-# codex >= 0.121.0
-try { $codexVer = (codex --version 2>$null) -split '\s+' | Select-Object -Index 1 } catch { $codexVer = $null }
-if (-not $codexVer) {
-    Fail "codex CLI not found. Install: npm install -g @openai/codex  (or https://github.com/openai/codex)"
+# ChatGPT OAuth tokens (sangpye reads them directly — no codex binary needed at runtime)
+$AuthFile = if ($env:CODEX_HOME) { Join-Path $env:CODEX_HOME "auth.json" } else { Join-Path $HOME ".codex\auth.json" }
+if (-not (Test-Path $AuthFile)) {
+    Fail "$AuthFile not found. Run: codex login  (pick the ChatGPT/OAuth option)"
 }
-# Parse x.y.z; require (0.y where y>=121) OR >= 1.0
-if ($codexVer -match '^0\.(\d+)\.') {
-    $minor = [int]$Matches[1]
-    if ($minor -lt 121) {
-        Fail "codex $codexVer is too old. Upgrade: npm install -g @openai/codex@latest  (need >= 0.121.0)"
-    }
-}
-Ok "codex $codexVer"
-
-# codex login status
 try {
-    $loginOut = codex login status 2>&1
-    if ($LASTEXITCODE -ne 0) { throw "not logged in" }
+    $authObj = Get-Content -Raw -Path $AuthFile | ConvertFrom-Json
+    if (-not $authObj.tokens.access_token -or -not $authObj.tokens.account_id) {
+        Fail "$AuthFile has no ChatGPT OAuth tokens (auth_mode=$($authObj.auth_mode)). Run: codex logout; codex login (choose ChatGPT)"
+    }
 } catch {
-    Fail "codex is not logged in. Run: codex login  (pick ChatGPT/OAuth option)"
+    Fail "Could not parse $AuthFile : $_"
 }
-$loginFirstLine = ($loginOut | Select-Object -First 1).ToString().Trim()
-Ok "codex login: $loginFirstLine"
-
-# CODEX_API_KEY check
-if ($env:CODEX_API_KEY) {
-    Warn "CODEX_API_KEY is set — this will override OAuth and may bill against an API key."
-    Warn "Unset it with: Remove-Item Env:CODEX_API_KEY"
-}
+Ok "ChatGPT OAuth tokens present in $AuthFile"
 
 Step "2/4  Install sangpye CLI (uv tool install)"
 # Try --reinstall first (to upgrade an existing install), fall back to plain install

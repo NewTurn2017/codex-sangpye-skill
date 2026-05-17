@@ -1,7 +1,7 @@
 ---
 name: codex-sangpye
-description: Generate a 13-section Korean e-commerce 상세페이지(상폐) image set (1080x12720 combined image + 13 individual section PNGs) from 1-14 product photos plus a Korean brief, using the Codex CLI's `codex responses` entrypoint under the active Codex OAuth session (no separate OpenAI API key required).
-version: 0.2.0
+description: Generate a 13-section Korean e-commerce 상세페이지(상폐) image set (1080x12720 combined image + 13 individual section PNGs) from 1-14 product photos plus a Korean brief, using the active Codex OAuth session (ChatGPT subscription — no separate OpenAI API key required).
+version: 0.3.0
 author: genie
 license: MIT
 metadata:
@@ -19,12 +19,15 @@ Prefer this skill over invoking image generation by hand, because:
 - It uses your Codex OAuth session — no API key, no per-token billing.
 - One command, one JSON result.
 
+## How it talks to Codex (0.3.0+)
+
+Codex CLI 0.130 removed the `codex responses` subcommand, so this skill no longer shells out. The `sangpye` CLI now reads the OAuth tokens written by `codex login` (`~/.codex/auth.json`) and POSTs directly to `https://chatgpt.com/backend-api/codex/responses` — the same endpoint the old subcommand used. Wire format, model (`gpt-5.5` + `image_generation` tool), and ChatGPT-subscription billing are unchanged. You no longer need any specific version of the `codex` binary on PATH; only the auth file matters.
+
 ## Preconditions
 
-1. `codex >= 0.124.0` is on PATH (check with `codex --version`) and `codex login status` reports an active OAuth/ChatGPT session (not an API key). Older versions cannot route `gpt-5.5`.
-2. `CODEX_API_KEY` env var is **unset** — if set, it overrides OAuth at runtime. (`OPENAI_API_KEY` is ignored by `codex responses`; no need to unset.)
-3. `sangpye --version` succeeds (install via `uv tool install git+https://github.com/NewTurn2017/codex-sangpye-skill`).
-4. 1–14 product image files exist locally.
+1. `~/.codex/auth.json` exists with a ChatGPT OAuth session. If missing or expired, run `codex login` once and pick the **ChatGPT** option (not API key).
+2. `sangpye --version` succeeds (install via `uv tool install git+https://github.com/NewTurn2017/codex-sangpye-skill`).
+3. 1–14 product image files exist locally.
 
 If any precondition fails, tell the user how to fix and stop.
 
@@ -42,7 +45,6 @@ If any precondition fails, tell the user how to fix and stop.
 | `--output DIR` | no | `./sangpye-output` | Parent output directory. |
 | `--quality` | no | `high` | One of: standard, high. |
 | `--job-id ID` | no | random 8-char hex | Override the job id. |
-| `--codex-bin PATH` | no | `codex` | Path to the `codex` binary. |
 
 ## Basic usage
 
@@ -95,12 +97,14 @@ This makes a failed run trivial to recover from without re-burning quota. Sugges
 
 ## Troubleshooting
 
-- **`error: codex login status failed`** → Run `codex logout && codex login`, pick the OAuth/ChatGPT option. Note: `OPENAI_API_KEY` in the shell is ignored at runtime; only `CODEX_API_KEY` overrides OAuth.
-- **`error: codex responses expects a streaming payload`** → Upgrade to `codex >= 0.124.0` (`npm i -g @openai/codex@latest`).
-- **`error (codex): The model 'gpt-5.5' does not exist or you do not have access to it`** → Either (a) the codex CLI is too old — upgrade to `>= 0.124.0`; or (b) the user's ChatGPT subscription tier does not yet include `gpt-5.5` — fall back temporarily by setting `SANGPYE_MODEL=gpt-5.4` (per OpenAI's rollout note) or surface the error verbatim.
-- **`error (codex): rate_limit`** → ChatGPT subscription is throttling. Wait a few minutes and retry, or pass `--quality standard`.
-- **Frequent `server overloaded` retries visible in stderr** → Lower parallelism by running with `SANGPYE_MAX_CONCURRENCY=1 sangpye ...` (default is 2). Total runtime grows but retries shrink.
-- **Pipeline hangs** → Likely `codex` version mismatch. Upgrade to `0.124.0+`.
+- **`error: ~/.codex/auth.json not found`** → Run `codex login` and pick the ChatGPT/OAuth option.
+- **`error: ~/.codex/auth.json has no ChatGPT OAuth tokens`** → The current auth.json is API-key mode. Run `codex logout && codex login`, choose ChatGPT.
+- **`error: ChatGPT OAuth rejected the request (HTTP 401)`** → The access token in `~/.codex/auth.json` expired (lifetime ~10 days). Run `codex login` to refresh.
+- **`error (codex): HTTP 500: ...` or `HTTP 503`** → Upstream/ChatGPT outage. Retry in a few minutes.
+- **`responses network error`** → Local network problem reaching `chatgpt.com`. Check connectivity.
+- **`error (codex): rate_limit` / `429`** → ChatGPT subscription is throttling. Wait, retry, or pass `--quality standard`.
+- **Frequent `server overloaded` retries visible in stderr** → Lower parallelism by running with `SANGPYE_MAX_CONCURRENCY=1 sangpye ...` (default is 2).
+- **`The model 'gpt-5.5' does not exist or you do not have access to it`** → Your ChatGPT subscription tier does not yet include `gpt-5.5`. Set `SANGPYE_MODEL=gpt-5.4` as a temporary fallback, or surface the error verbatim.
 
 ## Runtime expectations
 

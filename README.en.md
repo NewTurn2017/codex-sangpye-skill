@@ -24,27 +24,22 @@ Give it 1–14 product photos plus a Korean brief → get **13 section images + 
 
 The one idea that makes this skill interesting: **it runs on your ChatGPT Plus/Pro subscription, not on an API key.**
 
-Internally, every model call tunnels through `codex responses` and inherits your active OAuth session. So:
+Originally this tunnelled through the `codex responses` subcommand, but **Codex CLI 0.130 removed that subcommand**. Starting with v0.3.0, the `sangpye` CLI reads the OAuth tokens saved by `codex login` (`~/.codex/auth.json`) and POSTs directly to ChatGPT's backend (`chatgpt.com/backend-api/codex/responses`) — the same endpoint the old subcommand used under the hood. Net result:
 
 - No API key to create or store · No separate billing · Runs inside your ChatGPT quota
+- No dependency on any specific `codex` binary version (only the auth file matters)
 - `gpt-5.5` multimodal analysis + 5 parallel `image_generation` tool calls → 13 sections auto-assembled (set `SANGPYE_MODEL=gpt-5.4` to fall back during the rollout)
 - Typical runtime: **5–10 minutes** (as fast as ~5 min when ChatGPT is idle, up to ~15 min under load). The CLI auto-retries `server overloaded` / `rate_limit` transparently.
 
-### Prerequisites (3 things)
+### Prerequisites (just one)
 
 ```bash
-# 1. codex CLI, latest (>= 0.121.0)
-npm install -g @openai/codex@latest
-codex --version   # codex-cli 0.123.0 or above
-
-# 2. Log in with your ChatGPT account (NOT an API key)
+# Log in once with ChatGPT (NOT an API key)
 codex login       # choose "Sign in with ChatGPT"
-
-# 3. CODEX_API_KEY must NOT be set (it overrides OAuth)
-echo "${CODEX_API_KEY:-<unset>}"     # must say <unset>
+# → writes access_token + account_id to ~/.codex/auth.json (token lifetime ~10 days)
 ```
 
-> `OPENAI_API_KEY` is **ignored** by `codex responses` at runtime — you don't need to unset it. Only `CODEX_API_KEY` overrides OAuth.
+> v0.3.0+ does NOT invoke the `codex` binary at runtime. If the token expires, just re-run `codex login`. `OPENAI_API_KEY` / `CODEX_API_KEY` env vars are ignored by this skill — only the OAuth token in `auth.json` is used.
 
 ### One-shot install
 
@@ -59,7 +54,7 @@ iwr -useb https://raw.githubusercontent.com/NewTurn2017/codex-sangpye-skill/main
 ```
 
 The installer:
-1. Verifies `uv`, `codex >= 0.121.0`, and OAuth login status
+1. Verifies `uv` and the presence of ChatGPT OAuth tokens in `~/.codex/auth.json`
 2. Installs the `sangpye` CLI globally via `uv tool install`
 3. Drops `SKILL.md` into `~/.claude/skills/codex-sangpye/` for Claude Code auto-discovery
 4. Runs a smoke check
@@ -184,7 +179,6 @@ sangpye \
 | `--output DIR` | | `./sangpye-output` | Parent output directory (a `{job_id}/` subdir is created inside). |
 | `--quality` | | `high` | `standard` \| `high`. Drop to `standard` if you hit rate limits. |
 | `--job-id ID` | | random 8-char hex | Override the auto-generated id (becomes the subdir name). |
-| `--codex-bin PATH` | | `codex` | Path to the `codex` binary if it's not on PATH. |
 
 ### Output contract
 
@@ -242,7 +236,7 @@ Input: 1–14 images + Korean prompt
 
 No Celery, no Redis, no Docker. Just a single local `sangpye` process that runs synchronously until combined.png is on disk.
 
-`codex_client.py` wraps the `codex responses` subprocess call. If you want to swap in a faster transport later (e.g. direct HTTPS to the private ChatGPT endpoint — see [NomaDamas/god-tibo-imagen](https://github.com/NomaDamas/god-tibo-imagen)), only that one file needs changing.
+All model traffic goes through `codex_client.py`, which reads the OAuth tokens from `~/.codex/auth.json` and POSTs SSE streams directly to `chatgpt.com/backend-api/codex/responses`. The `codex` binary itself is no longer invoked (Codex CLI 0.130 removed the `codex responses` subcommand we used to shell out to).
 
 ---
 
@@ -252,7 +246,7 @@ This skill is an **extract** of the core pipeline from a private FastAPI + Celer
 
 | Original | Here | Change |
 |---|---|---|
-| `app/services/openai_client.py` | `sangpye_skill/codex_client.py` | Rewritten: subprocess wrapper around `codex responses` |
+| `app/services/openai_client.py` | `sangpye_skill/codex_client.py` | Rewritten: reads `~/.codex/auth.json` and POSTs SSE directly to `chatgpt.com/backend-api/codex/responses` (v0.3.0+, codex 0.130 compatible) |
 | `app/services/pipeline.py` | `sangpye_skill/pipeline.py` | Synchronous variant; no Celery, no Redis, no cancel hooks |
 | `app/services/analysis.py` | `sangpye_skill/analysis.py` | Same prompts + schemas; calls `codex_client.call_responses` |
 | `app/services/image_generator_v3.py` | `sangpye_skill/image_generator.py` | Same retry/concurrency logic; calls `codex_client.generate_image_with_reference` |
@@ -265,17 +259,16 @@ This skill is an **extract** of the core pipeline from a private FastAPI + Celer
 
 | Symptom | Fix |
 |---|---|
-| `codex: command not found` | `npm install -g @openai/codex` |
-| `codex --version` < 0.124.0 | `npm install -g @openai/codex@latest` (required to route gpt-5.5) |
-| `error: codex login status failed` | `codex login` → "Sign in with ChatGPT" |
-| OAuth doesn't seem to be used | `unset CODEX_API_KEY` (or `Remove-Item Env:CODEX_API_KEY` on Windows) |
-| `error: codex responses expects a streaming payload` | Upgrade codex |
-| `The model 'gpt-5.5' does not exist or you do not have access to it` | (1) `codex --version` < 0.124.0 — upgrade; or (2) your ChatGPT tier hasn't received 5.5 yet — fall back with `SANGPYE_MODEL=gpt-5.4 sangpye ...` |
+| `error: ~/.codex/auth.json not found` | Run `codex login` once and pick "Sign in with ChatGPT" |
+| `error: ~/.codex/auth.json has no ChatGPT OAuth tokens` | You're signed in via API key mode — `codex logout && codex login`, choose ChatGPT |
+| `error: ChatGPT OAuth rejected the request (HTTP 401)` | Access token expired (~10-day lifetime). Re-run `codex login` to refresh |
+| `responses HTTP 500` / `503` | Transient ChatGPT backend issue — retry in a few minutes |
+| `responses network error` | Local connectivity / firewall problem reaching `chatgpt.com` |
+| `The model 'gpt-5.5' does not exist or you do not have access to it` | Your ChatGPT tier hasn't received 5.5 yet — fall back with `SANGPYE_MODEL=gpt-5.4 sangpye ...` |
 | `error (codex): rate_limit` | ChatGPT quota throttle — wait, or use `--quality standard` |
 | Runs take >10 min | Retries absorbing overload — let it finish. Expected under ChatGPT load |
 | Frequent `server overloaded` | Lower concurrency: `SANGPYE_MAX_CONCURRENCY=1` (default is 2). Longer total, fewer retries |
-| Pipeline hangs | Check `codex --version` ≥ 0.124.0; older versions use a different event schema |
-| Run crashed mid-way | `output_dir/{job_id}/analysis.json` was saved right after Step 1 — you can reuse it manually |
+| Run crashed mid-way | Re-run with the same `--output --job-id` — Step 1 and completed bundles are auto-reused |
 
 ---
 

@@ -176,6 +176,8 @@ sangpye \
 | `--output DIR` | | `./sangpye-output` | 출력 디렉토리 (하위에 `{job_id}/` 생성). |
 | `--quality` | | `high` | `standard` \| `high`. 저티어 구독에서 rate limit 만나면 `standard`로. |
 | `--job-id ID` | | 랜덤 8자 hex | 수동 지정 시 디렉토리명이 됨. |
+| `--layout` | | `flat` | `flat` = 섹션 풀블리드(기본, 제품 상폐) \| `cards` = 통일 다크 배경 위 둥근 카드 + 여백(강의/콘텐츠용). |
+| `--card-side / --card-gap / --card-pad / --card-radius / --card-bg` | | `30 / 40 / 40 / 24 / #0B1020` | `--layout cards`일 때만 적용되는 좌우·세로 간격·상하 여백·모서리·배경 튜닝. |
 
 ### 출력
 

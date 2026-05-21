@@ -56,6 +56,8 @@ class PipelineService:
         progress_callback: Callable[[int, int], None] | None = None,
         status_callback: Callable[[str, str], None] | None = None,
         event_callback: Callable[[dict], None] | None = None,
+        layout: Literal["flat", "cards"] = "flat",
+        card_opts: dict | None = None,
     ) -> dict:
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -186,15 +188,18 @@ class PipelineService:
         # 6) Compose combined
         emit_status(
             "composing",
-            "세로 합성 중: 13 섹션 → combined.png"
+            f"{'카드' if layout == 'cards' else '세로'} 합성 중: 13 섹션 → combined.png"
             + (f" (일부 섹션은 placeholder)" if failed_bundles else ""),
         )
-        logger.info("[%s] compose", job_id)
+        logger.info("[%s] compose (layout=%s)", job_id, layout)
         combined_path = output_dir / "combined.png"
         # Filter None — placeholder composer handles missing paths via a dark
         # background.
         final_paths: list[Path] = [p if p else output_dir / "MISSING.png" for p in section_paths]
-        self.composer.compose_vertical(final_paths, output_path=combined_path)
+        if layout == "cards":
+            self.composer.compose_cards(final_paths, output_path=combined_path, **(card_opts or {}))
+        else:
+            self.composer.compose_vertical(final_paths, output_path=combined_path)
 
         return {
             "section_paths": [p for p in section_paths if p is not None],

@@ -1,13 +1,14 @@
 ---
 name: codex-sangpye
 description: Generate a 13-section Korean e-commerce 상세페이지(상폐) image set (1080x12720 combined image + 13 individual section PNGs) from 1-14 product photos plus a Korean brief, using the active Codex OAuth session (ChatGPT subscription — no separate OpenAI API key required).
-version: 0.3.0
+version: 0.4.0
 author: genie
 license: MIT
 metadata:
   hermes:
     tags: [codex, image-generation, oauth, ecommerce, korean, sangpye, detail-page]
     related_skills: [codex-image-generation]
+version_note: "0.4.0 — adds --layout cards (rounded-card composition with margins)"
 ---
 
 ## When to use
@@ -45,6 +46,18 @@ If any precondition fails, tell the user how to fix and stop.
 | `--output DIR` | no | `./sangpye-output` | Parent output directory. |
 | `--quality` | no | `high` | One of: standard, high. |
 | `--job-id ID` | no | random 8-char hex | Override the job id. |
+| `--layout` | no | `flat` | `flat` = sections stacked edge-to-edge (full-bleed, default — product 상폐). `cards` = rounded cards on a unified dark background with margins (lecture / content). |
+| `--card-side` | no | `30` | [cards] left/right margin px. |
+| `--card-gap` | no | `40` | [cards] vertical gap between cards px. |
+| `--card-pad` | no | `40` | [cards] top/bottom page padding px. |
+| `--card-radius` | no | `24` | [cards] card corner radius px. |
+| `--card-bg` | no | `#0B1020` | [cards] unified background color. |
+
+## Layouts: flat vs cards
+
+`--layout flat` (default) stacks the 13 sections with **zero gap** into the canonical **1080×12720** PNG — the standard full-bleed e-commerce 상폐 look.
+
+`--layout cards` places each section as a **rounded card on a unified dark background** with even margins (left/right `--card-side`, between cards `--card-gap`, page top/bottom `--card-pad`). This removes the abrupt background-color jumps at section seams and gives a tidy "card rhythm" — well suited to lecture / content detail pages (e.g. the `/video-use-summary` pipeline passes `--layout cards`). The combined height is no longer exactly 12720 because each card is width-inset and gaps are added. The `--card-*` flags only take effect with `--layout cards`.
 
 ## Basic usage
 

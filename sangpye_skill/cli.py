@@ -45,6 +45,18 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--quality", choices=["standard", "high"], default="high")
     p.add_argument("--job-id", default=None, help="Override the auto-generated 8-char job id.")
+    p.add_argument(
+        "--layout", choices=["flat", "cards"], default="flat",
+        help=(
+            "combined.png 합성 방식. flat=섹션을 간격 0으로 풀블리드(기본, 제품 상폐). "
+            "cards=통일 다크 배경 위에 둥근 모서리 카드 + 여백(강의/콘텐츠용)."
+        ),
+    )
+    p.add_argument("--card-side", type=int, default=30, help="[cards] 좌우 여백 px (기본 30).")
+    p.add_argument("--card-gap", type=int, default=40, help="[cards] 카드 사이 세로 간격 px (기본 40).")
+    p.add_argument("--card-pad", type=int, default=40, help="[cards] 상/하단 여백 px (기본 40).")
+    p.add_argument("--card-radius", type=int, default=24, help="[cards] 카드 모서리 둥글기 px (기본 24).")
+    p.add_argument("--card-bg", default="#0B1020", help="[cards] 통일 배경색 (기본 #0B1020).")
     return p
 
 
@@ -128,6 +140,14 @@ def main() -> int:
             progress_callback=on_progress,
             status_callback=on_status,
             event_callback=on_event,
+            layout=args.layout,
+            card_opts={
+                "side": args.card_side,
+                "gap": args.card_gap,
+                "pad": args.card_pad,
+                "radius": args.card_radius,
+                "bg": args.card_bg,
+            },
         )
     except (CodexAuthError, CodexCallError) as e:
         _stderr(f"error (codex): {e}")
